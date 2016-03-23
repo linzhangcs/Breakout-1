@@ -7,7 +7,7 @@ STATES:
 */
 
 function Menu(components) {
-  
+
 	this.addComponent = function(component) {
 		this.components.add(component);
 	}
@@ -31,14 +31,14 @@ function Menu(components) {
 		this.components.forEach(function(c) {
 		  c.handleTooltip();
 		  if(c.tooltipActive) {
-		    c.tooltip.draw();
+		    c.tooltip.display();
 		  }
 		});
 	}
 
 	this.handleComponentCallbacks = function() {
 	}
-	
+
 	this.scaleAll = function(scale) {
 	  this.components.forEach(function(c) {
 	    c.scale = scale;
@@ -51,23 +51,25 @@ function Menu(components) {
 function Button(x, y, image, callback, tooltip) {
 	Sprite.apply(this, [x, y].concat([0, 0]));
 
-	this.mouseIsActive = true;
+	this.mouseActive = true;
 	this.tooltipActive = false;
+
+	this.tooltip = tooltip;
 
 	this.handleTooltip = function() {
 		if(this.mouseIsOver) {
 			this.tooltipActive = true;
 		} else {
-		  this.tooltipActive = false;
+		  	this.tooltipActive = false;
 		}
 	}
 	this.addImage(image);
-	
+
 	this.depth = allSprites.maxDepth() + 1;
 	allSprites.add(this);
 
 	this.callback = callback;
-	
+
 }
 
 function Tooltip(x, y, image) {
@@ -83,7 +85,7 @@ Button.prototype = Object.create(Sprite.prototype);
 Tooltip.prototype = Object.create(Sprite.prototype);
 
 
-function Level(rows, cols, b_margin, offX, offY, filter, numcolors) {
+function Level(rows, cols, b_margin, offX, offY, filter, numcolors, background) {
 
 	this.createLayout = function(rows, cols, b_margin, offX, offY, filter, colors) {
 		for(var i = 0; i < rows; i++) {
@@ -108,9 +110,13 @@ function Level(rows, cols, b_margin, offX, offY, filter, numcolors) {
 	}
 	
 	this.bricksLeft = function() {
-		return this.level_items.filter(function(s) {
-			return !(s instanceof Powerup) && !(s instanceof Wall);
-		}).length;
+		// Using for loop filter function instead of the built-in because it's ~ 1.81% faster
+		// http://jsperf.com/function-loops/10
+		var items = [];
+		for(var i = 0; i < this.level_items.length; i++) {
+			if(!(this.level_items[i] instanceof Powerup) && !(this.level_items[i] instanceof Wall)) items.push(this.level_items[i]);
+		}
+		return items.length;
 	}
 
 	this.chooseColor = function() {
@@ -118,8 +124,16 @@ function Level(rows, cols, b_margin, offX, offY, filter, numcolors) {
 	}
 
 	this.drawLevel = function() {
+		if(this.background) { this.drawBackground(); };
 		drawSprites(this.level_items);
 		drawSprites(this.ball_list);
+	}
+
+	this.drawBackground = function() {
+		var bg_width = this.background.width;
+		for(var i = 0; i < Math.ceil(width / bg_width); i++) {
+			image(this.background, i * bg_width, 0);		
+		}
 	}
 	
 	this.getProperties = function() {
@@ -130,23 +144,50 @@ function Level(rows, cols, b_margin, offX, offY, filter, numcolors) {
 		if(typeof f === 'string') {
 			return new Function('i', 'j', f.split('{')[1].split('}')[0]);
 		} else {
-			return f;
+			return f || function() { return true; };
 		}
 	}
 	
+	this.clearPowerups = function() {
+		this.level_items.forEach(function(spr) {
+			if(spr instanceof Powerup) {
+				spr.remove();
+			}
+		});
+		var timerKeys = Object.keys(gameControl.player.timers);
+		timerKeys.forEach(function(k) {
+			gameControl.player.timers[k][0] = 0;
+		});
+	}
+
+	this.removeColor = function(color) {
+		for(var i = 0; i < this.colors.length; i++) {
+			if(this.colors[i] === color) {
+				this.colors.splice(i, 1);
+			}
+		}
+	}
+
+	this.getLevelItem = function(i) {
+		return this.level_items[i];
+	}
+	
 	this.rows = rows;
-	this.cols = cols;this.b_margin = b_margin;
+	this.cols = cols;
+	this.b_margin = b_margin;
 	this.offX = offX;
 	this.offY = offY;
 	this.filter = this.handleFilter(filter);
 	this.numcolors = numcolors || 8;
+
+	this.background = background || images['forest'];
 	
 	this.colors = this.createLevelColors(this.numcolors);
 
 	this.level_items = new Group();
 	this.ball_list = new Group();
 
-	this.createLayout(rows, cols, b_margin, offX, offY, this.filter || function() { return true; }, this.colors);
+	this.createLayout(rows, cols, b_margin, offX, offY, this.filter, this.colors);
 
 	this.ball_list.add(new Ball(500, 400, 15, 15, 5, 5, this.chooseColor()));
 }
@@ -161,7 +202,7 @@ function GameControl() {
 	}
 
 	this.draw = function() {
-	  this.formatText(32, 'future', [255, 255, 255]);
+		this.formatText(32, 'future', [255, 255, 255]);
 		if(this.state === 1) {
 			this.player.position.x = constrain(mouseX, this.player.width/2, windowWidth - this.player.width/2);
 			
@@ -171,6 +212,7 @@ function GameControl() {
 			this.garbageCollection();
 
 			this.player_list.collide(this.currentLevel.level_items, this.player.triggerPowerup);
+
 		} else if(this.state === 0) {
 			text('PAUSED', (width / 2) - 32 * 2, (height / 2));
 		} else if(this.state === 2) {
@@ -185,31 +227,35 @@ function GameControl() {
 		this.drawText();
 		
 		this.menu_list.forEach(function(m) {
-		  m.drawComponents();
+			m.drawComponents();
 		});
 		
 		if(frameCount % 360 === 0 && this.state === 1) {
-			this.currentLevel.level_items.add(this.generatePowerup());
+			this.generatePowerup();
 		}
 
 	}
 	
 	this.generatePowerup = function() {
-		var powerups = [
+		var powerup = this.powerup_list[this.powerup_generator.next()];
+		this.currentLevel.level_items.add(new Powerup(random(width), random(250), powerup[0], powerup[1], random(4, 10)));
+	}
+
+	this.createPowerupsList = function() {
+		return [
 		[ [255, 0, 0], function(level) { level.ball_list.add(new Ball(random(width), 400, 15, 15, 5, random(4, 10), level.chooseColor())) }],
 		[ [0, 255, 0], function(level) { gameControl.player.lives++; } ],
 		[ [0, 0, 255], function(level) { gameControl.score += 5; } ],
 		[ [255, 0, 255], function(level) { gameControl.player.timers['large'][0] += 500; } ],
 		[ [128, 128, 255], function(level) { gameControl.player.timers['ycontrol'][0] += 500; } ],
-		[ [128, 60, 0], function(level) { gameControl.player.timers['large'][0] = 0; if(gameControl.player_list.length === 1) { gameControl.player_list.add(new Paddle(gameControl.player.position.x, gameControl.player.position.y, 150, gameControl.player.height)); } gameControl.player.timers['splitpaddle'][0] += 500; } ]
+		[ [128, 60, 0], function(level) { gameControl.player.timers['large'][0] = 0; if(gameControl.player_list.length === 1) { gameControl.player_list.add(new Paddle(gameControl.player.position.x, gameControl.player.position.y, 150, gameControl.player.height)); } gameControl.player.timers['splitpaddle'][0] += 500; } ],
+		[ [0, 128, 255], function(level) { gameControl.player.timers['slow'][0] += 500; gameControl.currentLevel.ball_list.forEach(function(b) { b.setSpeed(max_ball_speed / 2, b.getDirection()); }); }]
 		];
-		var newPowerup = powerups[Math.floor(Math.random() * powerups.length)];
-		return new Powerup(random(width), random(250), newPowerup[0], newPowerup[1], random(4, 10));
 	}
 
 	this.garbageCollection = function() {
 		this.currentLevel.level_items.forEach(function(s) {
-			if(s instanceof Powerup && s.position.y >= width + 16) {
+			if(s instanceof Powerup && s.position.y >= height + 16) {
 				s.remove();
 			}
 		});
@@ -220,7 +266,7 @@ function GameControl() {
 			b.bounce(this.currentLevel.level_items, b.itemHit);
 			b.bounce(this.player_list, function(b, p) {
 				var swing = (b.position.x - p.position.x) / 3;
-				b.setSpeed(9, b.getDirection() + swing);
+				b.setSpeed(max_ball_speed, b.getDirection() + swing);
 				sounds['paddlehit'].play();
 			});
 
@@ -235,7 +281,9 @@ function GameControl() {
 		this.currentLevel.level_items.forEach(function(s) {
 			s.remove();
 		});
+		
 		this.levelList.shift();
+		
 		if(this.levelList.length === 0) {
 			this.levelList.push(this.createLevel('random'));
 		}
@@ -250,26 +298,11 @@ function GameControl() {
 		this.state === 0 ? this.changeState(1) : this.changeState(0);
 	}
 
-	this.clearPowerups = function() {
-		this.currentLevel.level_items.forEach(function(spr) {
-			if(spr instanceof Powerup) {
-				spr.remove();
-			}
-		});
-		var timerKeys = Object.keys(gameControl.player.timers);
-		for(var i = 0; i < timerKeys.length; i++) {
-			gameControl.player.timers[timerKeys[i]][0] = [0];
-		}
-	}
-
 	this.loseBall = function(b) {
 		if(this.currentLevel.ball_list.length === 1) {
 			if(this.player.lives > 0) {
-				this.clearPowerups();
-				this.player.lives--;
-
-				b.position.x = 500;
-				b.position.y = 400;
+				this.currentLevel.clearPowerups();
+				b.reset(500, 400);
 
 				this.player.position.x = 500;
 				this.changeState(2);
@@ -294,16 +327,16 @@ function GameControl() {
 	}
 
 	this.drawText = function() {
-	  this.formatText(32, 'blocks', [255, 255, 255]);
-		text('Score: '.concat(this.score), (width / 2) - (32 * 2), 32 * 1.5);
-		text('Level: '.concat(this.level), 0 + (32 / 2), 32 * 1.5);
-		text('Lives: '.concat(this.player.lives), width - (32 * 6), 32 * 1.5);
+		this.formatText(32, 'blocks', [255, 255, 255]);
+		text('Score: '.concat(this.score), (width / 2) - (32 * 2), 32 * 1.1);
+		text('Level: '.concat(this.level), 0 + (32 / 2), 32 * 1.1);
+		text('Lives: '.concat(this.player.lives), width - (32 * 6), 32 * 1.1);
 	}
 	
 	this.formatText = function(size, font, nfill) {
-	  textSize(size);
-	  textFont(fonts[font]);
-	  fill(nfill);
+		textSize(size);
+		textFont(fonts[font]);
+		fill(nfill);
 	}
 
 	this.createLevel = function(args) {
@@ -336,6 +369,10 @@ function GameControl() {
 		window.localStorage.setItem('save', JSON.stringify({level: this.level, score: this.score, layout: this.currentLevel.getProperties(), lives: this.lives}));
 	}
 
+	this.getLevelItem = function(i) {
+		return this.currentLevel.getLevelItem(i);
+	}
+
 	this.levelList = this.createLevelList();
 	this.currentLevel = this.createLevel(this.levelList[0]);
 	this.player_list = new Group();
@@ -355,13 +392,21 @@ function GameControl() {
 	setFrameRate(60);
 
 	sounds['beat'].amp(0.4);
-	// this.grey_panel = loadImage('assets/grey_panel.png');
-	// this.menu_list.push(new Menu([new Button(100, 100, this.grey_panel)]));
+	sounds['death'].amp(0.4);
+	this.grey_panel = loadImage('assets/grey_panel.png');
+	this.menu_list.push(new Menu([new Button(100, 100, this.grey_panel, function() { return true; }, new Tooltip(300, 300, this.grey_panel))]));
+
+	this.powerup_list = this.createPowerupsList();
+
+	this.powerup_generator = new Alias([0.165, 0.05, 0.21, 0.21, 0.1, 0.165, 0.1]);
 }
 
 var gameControl;
 var sounds = {};
 var fonts = {};
+var images = {};
+var max_ball_speed = 9;
+
 function preload() {
 	sounds['paddlehit'] = loadSound('assets/paddlehit.ogg');
 	sounds['brickhit'] = loadSound('assets/brickhit.ogg');
@@ -373,6 +418,11 @@ function preload() {
 	
 	fonts['blocks'] = loadFont('assets/blocks.ttf');
 	fonts['future'] = loadFont('assets/future.ttf');
+
+	images['castle'] = loadImage('assets/colored_castle.png');
+	images['forest'] = loadImage('assets/colored_forest.png');
+	images['desert'] = loadImage('assets/colored_desert.png');
+	images['talltrees'] = loadImage('assets/colored_talltrees.png');
 }
 
 function setup() {

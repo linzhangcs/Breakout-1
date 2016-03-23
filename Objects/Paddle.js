@@ -6,7 +6,8 @@ function Paddle(x, y, w, h, l) {
 	this.timers = { 
 		large: [0, function(paddle) { paddle.width = 250; }, function(paddle) { paddle.width = 150; }], 
 		ycontrol: [0, function(paddle) { paddle.position.y = constrain(mouseY, paddle.height / 2, height - paddle.height / 2)}, function(paddle) { paddle.position.y = height - 35; }],
-		splitpaddle: [0, function(paddle) { gameControl.player_list[1].position.x = paddle.position.x - 250; gameControl.player_list[1].position.y = paddle.position.y; }, function(paddle) { if(gameControl.player_list.length > 1) { gameControl.player_list[1].remove(); } }]
+		splitpaddle: [0, function(paddle) { gameControl.player_list[1].position.x = paddle.position.x - 250; gameControl.player_list[1].position.y = paddle.position.y; }, function(paddle) { if(gameControl.player_list.length > 1) { gameControl.player_list[1].remove(); } }],
+		slow: [0, function(paddle) { max_ball_speed = 4.5; }, function(paddle) { max_ball_speed = 9; }], 
 	};
 
 	this.depth = allSprites.maxDepth() + 1;
@@ -14,7 +15,7 @@ function Paddle(x, y, w, h, l) {
 
 	this.triggerPowerup = function(t, p) {
 		if(p instanceof Powerup) {
-			sounds['powerUp'+Math.ceil(Math.random() * 7)].play();
+			sounds['powerUp'+ Math.ceil(Math.random() * 7)].play();
 			p.remove();
 			p.callback(gameControl.currentLevel);
 		}
