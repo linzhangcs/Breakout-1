@@ -6,83 +6,83 @@ STATES:
 	3 = OUT OF LIVES
 */
 
-function Menu(components) {
+// function Menu(components) {
 
-	this.addComponent = function(component) {
-		this.components.add(component);
-	}
+// 	this.addComponent = function(component) {
+// 		this.components.add(component);
+// 	}
 
-	this.handleComponentParam = function(components) {
-		var newComp = new Group();
-		if(components instanceof Group) {
-			return components;
-		} else if(components instanceof Array) {
-			components.forEach(function(c) {
-				newComp.add(c);
-			});
-		} else if(components instanceof Sprite) {
-		  newComp.add(components);
-		}
-		return newComp;
-	}
+// 	this.handleComponentParam = function(components) {
+// 		var newComp = new Group();
+// 		if(components instanceof Group) {
+// 			return components;
+// 		} else if(components instanceof Array) {
+// 			components.forEach(function(c) {
+// 				newComp.add(c);
+// 			});
+// 		} else if(components instanceof Sprite) {
+// 		  newComp.add(components);
+// 		}
+// 		return newComp;
+// 	}
 
-	this.drawComponents = function() {
-		drawSprites(this.components);
-		this.components.forEach(function(c) {
-		  c.handleTooltip();
-		  if(c.tooltipActive) {
-		    c.tooltip.display();
-		  }
-		});
-	}
+// 	this.drawComponents = function() {
+// 		drawSprites(this.components);
+// 		this.components.forEach(function(c) {
+// 		  c.handleTooltip();
+// 		  if(c.tooltipActive) {
+// 		    c.tooltip.display();
+// 		  }
+// 		});
+// 	}
 
-	this.handleComponentCallbacks = function() {
-	}
+// 	this.handleComponentCallbacks = function() {
+// 	}
 
-	this.scaleAll = function(scale) {
-	  this.components.forEach(function(c) {
-	    c.scale = scale;
-	  });
-	}
+// 	this.scaleAll = function(scale) {
+// 	  this.components.forEach(function(c) {
+// 	    c.scale = scale;
+// 	  });
+// 	}
 
-	this.components = this.handleComponentParam(components);
-}
+// 	this.components = this.handleComponentParam(components);
+// }
 
-function Button(x, y, image, callback, tooltip) {
-	Sprite.apply(this, [x, y].concat([0, 0]));
+// function Button(x, y, image, callback, tooltip) {
+// 	Sprite.apply(this, [x, y].concat([0, 0]));
 
-	this.mouseActive = true;
-	this.tooltipActive = false;
+// 	this.mouseActive = true;
+// 	this.tooltipActive = false;
 
-	this.tooltip = tooltip;
+// 	this.tooltip = tooltip;
 
-	this.handleTooltip = function() {
-		if(this.mouseIsOver) {
-			this.tooltipActive = true;
-		} else {
-		  	this.tooltipActive = false;
-		}
-	}
-	this.addImage(image);
+// 	this.handleTooltip = function() {
+// 		if(this.mouseIsOver) {
+// 			this.tooltipActive = true;
+// 		} else {
+// 		  	this.tooltipActive = false;
+// 		}
+// 	}
+// 	this.addImage(image);
 
-	this.depth = allSprites.maxDepth() + 1;
-	allSprites.add(this);
+// 	this.depth = allSprites.maxDepth() + 1;
+// 	allSprites.add(this);
 
-	this.callback = callback;
+// 	this.callback = callback;
 
-}
+// }
 
-function Tooltip(x, y, image) {
-	Sprite.apply(this, [x, y].concat([0, 0]));
+// function Tooltip(x, y, image) {
+// 	Sprite.apply(this, [x, y].concat([0, 0]));
 
-	this.depth = allSprites.maxDepth() + 1;
-	allSprites.add(this);
+// 	this.depth = allSprites.maxDepth() + 1;
+// 	allSprites.add(this);
 
-	this.addImage(image);
-}
+// 	this.addImage(image);
+// }
 
-Button.prototype = Object.create(Sprite.prototype);
-Tooltip.prototype = Object.create(Sprite.prototype);
+// Button.prototype = Object.create(Sprite.prototype);
+// Tooltip.prototype = Object.create(Sprite.prototype);
 
 
 function Level(rows, cols, b_margin, offX, offY, filter, numcolors, background) {
@@ -126,7 +126,20 @@ function Level(rows, cols, b_margin, offX, offY, filter, numcolors, background) 
 	this.drawLevel = function() {
 		if(this.background) { this.drawBackground(); };
 		drawSprites(this.level_items);
+		drawSprites(this.enemy_list);
 		drawSprites(this.ball_list);
+
+		if(gameControl.state === 1) {
+			this.enemy_list.forEach(function(e) {
+				
+				if(e instanceof Enemy) {
+					e.rotate();
+					if(frameCount % 300 === 0) {
+						e.shoot();
+					}
+				}
+			});
+		}
 	}
 
 	this.drawBackground = function() {
@@ -180,16 +193,18 @@ function Level(rows, cols, b_margin, offX, offY, filter, numcolors, background) 
 	this.filter = this.handleFilter(filter);
 	this.numcolors = numcolors || 8;
 
-	this.background = background || images['forest'];
+	this.background = background; // || images['forest'];
 	
 	this.colors = this.createLevelColors(this.numcolors);
 
 	this.level_items = new Group();
+	this.enemy_list = new Group();
 	this.ball_list = new Group();
 
 	this.createLayout(rows, cols, b_margin, offX, offY, this.filter, this.colors);
 
 	this.ball_list.add(new Ball(500, 400, 15, 15, 5, 5, this.chooseColor()));
+
 }
 
 function GameControl() {
@@ -213,6 +228,10 @@ function GameControl() {
 
 			this.player_list.collide(this.currentLevel.level_items, this.player.triggerPowerup);
 
+			this.player_list.collide(this.currentLevel.enemy_list, function(t, e) { gameControl.player.lives--; e.remove(); });
+
+			this.currentLevel.enemy_list.bounce(this.currentLevel.level_items);
+
 		} else if(this.state === 0) {
 			text('PAUSED', (width / 2) - 32 * 2, (height / 2));
 		} else if(this.state === 2) {
@@ -234,11 +253,20 @@ function GameControl() {
 			this.generatePowerup();
 		}
 
+		if(frameCount % 1500 === 0 && this.state === 1) {
+			this.generateEnemy();
+		}
+
 	}
 	
 	this.generatePowerup = function() {
 		var powerup = this.powerup_list[this.powerup_generator.next()];
 		this.currentLevel.level_items.add(new Powerup(random(width), random(250), powerup[0], powerup[1], random(4, 10)));
+	}
+
+	this.generateEnemy = function() {
+		var lowestRow = this.currentLevel.rows * (20 + this.currentLevel.b_margin);
+		this.currentLevel.enemy_list.add(new Enemy(0, lowestRow + random(20, 60), images[['green_ship', 'yellow_ship', 'beige_ship', 'blue_ship', 'pink_ship'][Math.floor(Math.random() * 5)]], random(4, 10)));
 	}
 
 	this.createPowerupsList = function() {
@@ -259,6 +287,12 @@ function GameControl() {
 				s.remove();
 			}
 		});
+
+		this.currentLevel.enemy_list.forEach(function(e) {
+			if(e instanceof Bullet && e.position.y >= height + 10) {
+				e.remove();
+			}
+		});
 	}
 
 	this.checkBallHits = function() {
@@ -270,11 +304,14 @@ function GameControl() {
 				sounds['paddlehit'].play();
 			});
 
+			b.collide(this.currentLevel.enemy_list, b.enemyHit);
+
 			if(b.position.y >= height + b.height) {
 				this.loseBall(b);
 			}
 
 		}, this);
+
 	}
 
 	this.nextLevel = function() {
@@ -393,12 +430,13 @@ function GameControl() {
 
 	sounds['beat'].amp(0.4);
 	sounds['death'].amp(0.4);
-	this.grey_panel = loadImage('assets/grey_panel.png');
-	this.menu_list.push(new Menu([new Button(100, 100, this.grey_panel, function() { return true; }, new Tooltip(300, 300, this.grey_panel))]));
+	// this.grey_panel = loadImage('assets/grey_panel.png');
+	// this.menu_list.push(new Menu([new Button(100, 100, this.grey_panel, function() { return true; }, new Tooltip(300, 300, this.grey_panel))]));
 
 	this.powerup_list = this.createPowerupsList();
 
 	this.powerup_generator = new Alias([0.165, 0.05, 0.21, 0.21, 0.1, 0.165, 0.1]);
+	this.enemy_generator = new Alias([])
 }
 
 var gameControl;
@@ -423,6 +461,12 @@ function preload() {
 	images['forest'] = loadImage('assets/colored_forest.png');
 	images['desert'] = loadImage('assets/colored_desert.png');
 	images['talltrees'] = loadImage('assets/colored_talltrees.png');
+
+	images['green_ship'] = loadImage('assets/green_ship.png');
+	images['beige_ship'] = loadImage('assets/beige_ship.png');
+	images['yellow_ship'] = loadImage('assets/yellow_ship.png');
+	images['blue_ship'] = loadImage('assets/blue_ship.png');
+	images['pink_ship'] = loadImage('assets/pink_ship.png');
 }
 
 function setup() {
@@ -449,3 +493,7 @@ function mousePressed() {
 		gameControl.changeState(1);
 	}
 }
+
+/* CHANGE ENEMY SYSTEM TO PASS 'C'(color) instead of image, decide on properties from their. Use alias method to pick which one I want to use. 
+ALSO - MAKE ENEMIES HAVE FIRE RATES, AND MOVE IN DIFFERENT PATTERNS. LIKE SHORT BURSTS. ALSO SFX.
+*/
