@@ -32,11 +32,15 @@ function Ball(x, y, w, h, vX, vY, c) {
 
 	this.enemyHit = function(t, e) {
 		if(e instanceof Enemy) {
-			gameControl.score += 3;
+			if(e.lives > 1) {
+        e.lives--;
+      } else {
+        e.remove();
+        gameControl.currentLevel.enemy_list.remove(e);
+        gameControl.score += 3;
+      }
 		}
-
-		e.remove();
-		gameControl.currentLevel.enemy_list.remove(e);
+		
 	}
 	
 	this.reset = function(x, y) {

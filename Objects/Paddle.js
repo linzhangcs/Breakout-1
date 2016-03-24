@@ -2,17 +2,17 @@ function Paddle(x, y, w, h, l) {
 	Sprite.apply(this, arguments);
 	this.immovable = true;
 	this.lives = l || 3;
+  
+  // Put createTimers into a function for quicker resetting of timers.
+	this.createTimers = function() {
+	  return { 
+  		large: [0, function(paddle) { paddle.width = 250; }, function(paddle) { paddle.width = 150; }], 
+  		ycontrol: [0, function(paddle) { paddle.position.y = constrain(mouseY, paddle.height / 2, height - paddle.height / 2)}, function(paddle) { paddle.position.y = height - 35; }],
+  		splitpaddle: [0, function(paddle) { gameControl.player_list[1].position.x = paddle.position.x - 250; gameControl.player_list[1].position.y = paddle.position.y; }, function(paddle) { if(gameControl.player_list.length > 1) { gameControl.player_list[1].remove(); } }],
+  		slow: [0, function(paddle) { max_ball_speed = 4.5; }, function(paddle) { max_ball_speed = 9; }]
+	  }
+	}
 	
-	this.timers = { 
-		large: [0, function(paddle) { paddle.width = 250; }, function(paddle) { paddle.width = 150; }], 
-		ycontrol: [0, function(paddle) { paddle.position.y = constrain(mouseY, paddle.height / 2, height - paddle.height / 2)}, function(paddle) { paddle.position.y = height - 35; }],
-		splitpaddle: [0, function(paddle) { gameControl.player_list[1].position.x = paddle.position.x - 250; gameControl.player_list[1].position.y = paddle.position.y; }, function(paddle) { if(gameControl.player_list.length > 1) { gameControl.player_list[1].remove(); } }],
-		slow: [0, function(paddle) { max_ball_speed = 4.5; }, function(paddle) { max_ball_speed = 9; }], 
-	};
-
-	this.depth = allSprites.maxDepth() + 1;
-	allSprites.add(this);
-
 	this.triggerPowerup = function(t, p) {
 		if(p instanceof Powerup) {
 			sounds['powerUp'+ Math.ceil(Math.random() * 7)].play();
@@ -33,7 +33,12 @@ function Paddle(x, y, w, h, l) {
 			}
 		};
 		this.setCollider('rectangle', 0, 0, this.width, this.height);
-	}
+	};
+	
+	this.timers = this.createTimers();
+	
+	this.depth = allSprites.maxDepth() + 1;
+	allSprites.add(this);
 }
 
 Paddle.prototype = Object.create(Sprite.prototype);

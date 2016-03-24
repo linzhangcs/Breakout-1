@@ -124,14 +124,17 @@ function Level(rows, cols, b_margin, offX, offY, filter, numcolors, background) 
 	}
 
 	this.drawLevel = function() {
-		if(this.background) { this.drawBackground(); };
+		// if(this.background) { this.drawBackground(); };
 		drawSprites(this.level_items);
 		drawSprites(this.enemy_list);
 		drawSprites(this.ball_list);
-
-		if(gameControl.state === 1) {
+    this.enemyLogic();
+		
+	}
+	
+	this.enemyLogic = function() {
+	  if(gameControl.state === 1) {
 			this.enemy_list.forEach(function(e) {
-				
 				if(e instanceof Enemy) {
 					e.rotate();
 					if(frameCount % e.fireRate === 0) {
@@ -167,15 +170,12 @@ function Level(rows, cols, b_margin, offX, offY, filter, numcolors, background) 
 				spr.remove();
 			}
 		});
-		var timerKeys = Object.keys(gameControl.player.timers);
-		timerKeys.forEach(function(k) {
-			gameControl.player.timers[k][0] = 0;
-		});
+		gameControl.player.timers = gameControl.player.createTimers();
 	}
 
-	this.removeColor = function(color) {
+	this.removeColor = function(c) {
 		for(var i = 0; i < this.colors.length; i++) {
-			if(this.colors[i] === color) {
+			if(this.colors[i] === c) {
 				this.colors.splice(i, 1);
 			}
 		}
@@ -230,7 +230,9 @@ function GameControl() {
 
 			this.player_list.collide(this.currentLevel.enemy_list, function(t, e) { gameControl.player.lives--; e.remove(); });
 
-			this.currentLevel.enemy_list.bounce(this.currentLevel.level_items);
+			this.currentLevel.enemy_list.collide(this.currentLevel.level_items, function(t, i) {
+			  t.velocity.x *= -1;
+			});
 
 		} else if(this.state === 0) {
 			text('PAUSED', (width / 2) - 32 * 2, (height / 2));
@@ -253,7 +255,7 @@ function GameControl() {
 			this.generatePowerup();
 		}
 
-		if(frameCount % 1000 === 0 && this.state === 1) {
+		if(frameCount % 1500 === 0 && this.state === 1) {
 			this.generateEnemy();
 		}
 
@@ -266,7 +268,7 @@ function GameControl() {
 
 	this.generateEnemy = function() {
 		var lowestRow = this.currentLevel.rows * (20 + this.currentLevel.b_margin);
-		this.currentLevel.enemy_list.add(new Enemy(0, lowestRow + random(20, 60), this.enemy_color_list[this.enemy_generator.next()]));
+		this.currentLevel.enemy_list.add(new Enemy(40, lowestRow + random(20, 60), this.enemy_color_list[this.enemy_generator.next()]));
 	}
 
 	this.createPowerupsList = function() {
@@ -308,7 +310,7 @@ function GameControl() {
 				sounds['paddlehit'].play();
 			});
 
-			b.collide(this.currentLevel.enemy_list, b.enemyHit);
+			b.bounce(this.currentLevel.enemy_list, b.enemyHit);
 
 			if(b.position.y >= height + b.height) {
 				this.loseBall(b);

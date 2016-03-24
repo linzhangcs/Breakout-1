@@ -1,8 +1,7 @@
 function Enemy(x, y, c) {
 	Sprite.apply(this, [x, y].concat([0, 0]));
-	this.immovable = false;
+	this.immovable = true;
 
-	// this.addImage(image);
 	this.scale = 0.5;
 
 	this.rotate = function() {
@@ -19,16 +18,18 @@ function Enemy(x, y, c) {
 	
 	this.handleColor = function(c) {
 	  var colorOptions = {
-	    'pink': ['pink_ship', 400, 8],
-	    'green': ['green_ship', 200, 5],
-	    'blue': ['blue_ship', 800, 12],
-	    'yellow': ['yellow_ship', 100, 3],
-	    'beige': ['beige_ship', 1000, 15]
+	    'pink': ['pink_ship', 400, 8, 2],
+	    'green': ['green_ship', 200, 5, 3],
+	    'blue': ['blue_ship', 800, 12, 2],
+	    'yellow': ['yellow_ship', 100, 3, 1],
+	    'beige': ['beige_ship', 1000, 15, 2]
 	    };
+	    
 	    this.color = colorOptions[c];
 	    this.addImage(images[this.color[0]]);
 	    this.fireRate = this.color[1];
 	    this.setVelocity(this.color[2], 0);
+	    this.lives = this.color[3];
 	}
 
 	this.depth = allSprites.maxDepth() + 1;
