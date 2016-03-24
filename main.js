@@ -134,7 +134,7 @@ function Level(rows, cols, b_margin, offX, offY, filter, numcolors, background) 
 				
 				if(e instanceof Enemy) {
 					e.rotate();
-					if(frameCount % 300 === 0) {
+					if(frameCount % e.fireRate === 0) {
 						e.shoot();
 					}
 				}
@@ -253,7 +253,7 @@ function GameControl() {
 			this.generatePowerup();
 		}
 
-		if(frameCount % 1500 === 0 && this.state === 1) {
+		if(frameCount % 1000 === 0 && this.state === 1) {
 			this.generateEnemy();
 		}
 
@@ -266,7 +266,7 @@ function GameControl() {
 
 	this.generateEnemy = function() {
 		var lowestRow = this.currentLevel.rows * (20 + this.currentLevel.b_margin);
-		this.currentLevel.enemy_list.add(new Enemy(0, lowestRow + random(20, 60), images[['green_ship', 'yellow_ship', 'beige_ship', 'blue_ship', 'pink_ship'][Math.floor(Math.random() * 5)]], random(4, 10)));
+		this.currentLevel.enemy_list.add(new Enemy(0, lowestRow + random(20, 60), this.enemy_color_list[this.enemy_generator.next()]));
 	}
 
 	this.createPowerupsList = function() {
@@ -279,6 +279,10 @@ function GameControl() {
 		[ [128, 60, 0], function(level) { gameControl.player.timers['large'][0] = 0; if(gameControl.player_list.length === 1) { gameControl.player_list.add(new Paddle(gameControl.player.position.x, gameControl.player.position.y, 150, gameControl.player.height)); } gameControl.player.timers['splitpaddle'][0] += 500; } ],
 		[ [0, 128, 255], function(level) { gameControl.player.timers['slow'][0] += 500; gameControl.currentLevel.ball_list.forEach(function(b) { b.setSpeed(max_ball_speed / 2, b.getDirection()); }); }]
 		];
+	}
+	
+	this.createEnemyColorList = function() {
+	  return ['green', 'blue', 'beige', 'yellow', 'pink'];
 	}
 
 	this.garbageCollection = function() {
@@ -434,9 +438,11 @@ function GameControl() {
 	// this.menu_list.push(new Menu([new Button(100, 100, this.grey_panel, function() { return true; }, new Tooltip(300, 300, this.grey_panel))]));
 
 	this.powerup_list = this.createPowerupsList();
+	this.enemy_color_list = this.createEnemyColorList();
 
 	this.powerup_generator = new Alias([0.165, 0.05, 0.21, 0.21, 0.1, 0.165, 0.1]);
-	this.enemy_generator = new Alias([])
+	this.enemy_generator = new Alias([0.3, 0.25, 0.25, 0.1, 0.1]);
+	// this.enemy_generator = new Alias([0, 0, 0, 0, 1]);
 }
 
 var gameControl;
