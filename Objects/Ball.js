@@ -1,7 +1,6 @@
 function Ball(x, y, w, h, vX, vY, c) {
 	Sprite.apply(this, arguments);
 	this.shapeColor = c;
-	this.damage = 1;
   
 	this.itemHit = function(t, i) {
 		if(i instanceof Brick) {
@@ -44,7 +43,7 @@ function Ball(x, y, w, h, vX, vY, c) {
 	}
 	
 	this.reset = function(x, y) {
-	  this.lives--;
+	  gameControl.player.lives--;
 		this.position.x = x;
 		this.position.y = y;
 	}

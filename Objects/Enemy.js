@@ -1,7 +1,7 @@
 function Enemy(x, y, c) {
 	Sprite.apply(this, [x, y].concat([0, 0]));
 	this.immovable = true;
-
+  sounds['ship' + Math.ceil(Math.random() * 3)].play();
 	this.scale = 0.5;
 
 	this.rotate = function() {
@@ -19,7 +19,7 @@ function Enemy(x, y, c) {
 	this.handleColor = function(c) {
 	  var colorOptions = {
 	    'pink': ['pink_ship', 400, 8, 2],
-	    'green': ['green_ship', 200, 5, 3],
+	    'green': ['green_ship', 200, 5, 1],
 	    'blue': ['blue_ship', 800, 12, 2],
 	    'yellow': ['yellow_ship', 100, 3, 1],
 	    'beige': ['beige_ship', 1000, 15, 2]

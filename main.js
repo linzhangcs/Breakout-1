@@ -50,7 +50,7 @@ STATES:
 
 // function Button(x, y, image, callback, tooltip) {
 // 	Sprite.apply(this, [x, y].concat([0, 0]));
-
+//   this.scale = 0.5;
 // 	this.mouseActive = true;
 // 	this.tooltipActive = false;
 
@@ -96,8 +96,8 @@ function Level(rows, cols, b_margin, offX, offY, filter, numcolors, background) 
 			}
 		}
 
-		this.level_items.add(new Wall(-20, 0, 20, height*2));
-		this.level_items.add(new Wall(width+20, 0, 20, height*2));
+		this.level_items.add(new Wall(-40, 0, 40, height*2));
+		this.level_items.add(new Wall(width+40, 0, 40, height*2));
 		this.level_items.add(new Wall(0, -20, width*2, 20));
 	}
 
@@ -129,14 +129,13 @@ function Level(rows, cols, b_margin, offX, offY, filter, numcolors, background) 
 		drawSprites(this.enemy_list);
 		drawSprites(this.ball_list);
     this.enemyLogic();
-		
 	}
 	
 	this.enemyLogic = function() {
 	  if(gameControl.state === 1) {
 			this.enemy_list.forEach(function(e) {
 				if(e instanceof Enemy) {
-					e.rotate();
+					// e.rotate();
 					if(frameCount % e.fireRate === 0) {
 						e.shoot();
 					}
@@ -228,7 +227,14 @@ function GameControl() {
 
 			this.player_list.collide(this.currentLevel.level_items, this.player.triggerPowerup);
 
-			this.player_list.collide(this.currentLevel.enemy_list, function(t, e) { gameControl.player.lives--; e.remove(); });
+			this.player_list.collide(this.currentLevel.enemy_list, function(t, e) { 
+			  if(gameControl.player.lives > 0) {
+			      gameControl.player.lives--; 
+			      e.remove(); 
+			  } else {
+			    gameControl.changeState(3);
+			  }
+			});
 
 			this.currentLevel.enemy_list.collide(this.currentLevel.level_items, function(t, i) {
 			  t.velocity.x *= -1;
@@ -321,6 +327,8 @@ function GameControl() {
 	}
 
 	this.nextLevel = function() {
+	  if(this.fun_mode) sounds['level_up'].play();
+	  
 		this.currentLevel.level_items.forEach(function(s) {
 			s.remove();
 		});
@@ -350,12 +358,17 @@ function GameControl() {
 				this.player.position.x = 500;
 				this.changeState(2);
 			} else {
+			  sounds['game_over'].play();
 				this.changeState(3);
 			}
 		} else {
 			b.remove();
 		}
-		sounds['death'].play();	
+		if(this.fun_mode) {
+		  sounds['you_lose'].play();
+		} else {
+		  sounds['death'].play();
+		}
 	}
 
 	this.changeState = function(s) {
@@ -384,7 +397,7 @@ function GameControl() {
 
 	this.createLevel = function(args) {
 		if(args === 'random') {
-			return [random(4, 15), random(4, 15), random(3, 10), random(100, (width / 2) - 15 * (40) / 2), random(100, 150), function(i, j) { return i % Math.floor(Math.random() * 4) === 0 || j % Math.floor(Math.random() * 4) === 0}, Math.ceil(random(4, 16))];
+			return [Math.floor(random(4, 15)), Math.floor(random(4, 15)), random(3, 10), random(100, ((width / 2) - 15 * (40) / 2) + 400), random(100, 150), function(i, j) { return i % Math.floor(Math.random() * 4) === 0 || j % Math.floor(Math.random() * 4) === 0}, Math.ceil(random(4, 16))];
 		} else {
 			return new Level(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
 		}
@@ -415,6 +428,15 @@ function GameControl() {
 	this.getLevelItem = function(i) {
 		return this.currentLevel.getLevelItem(i);
 	}
+	
+	this.setFunMode = function(t) {
+	  if(t === true) {
+	    for(var i = 1; i < 8; i++) {
+	      sounds['powerUp' + i] = sounds['power_up'];
+	    }
+	  }
+	  this.fun_mode = t;
+	}
 
 	this.levelList = this.createLevelList();
 	this.currentLevel = this.createLevel(this.levelList[0]);
@@ -431,13 +453,11 @@ function GameControl() {
 	this.state = 2;
 	
 	updateSprites(false);
-	
-	setFrameRate(60);
 
 	sounds['beat'].amp(0.4);
 	sounds['death'].amp(0.4);
-	// this.grey_panel = loadImage('assets/grey_panel.png');
-	// this.menu_list.push(new Menu([new Button(100, 100, this.grey_panel, function() { return true; }, new Tooltip(300, 300, this.grey_panel))]));
+// 	this.grey_panel = loadImage('assets/grey_panel.png');
+// 	this.menu_list.push(new Menu([new Button(100, 100, loadImage('assets/yellow_ball.png'), function() { return true; }, new Tooltip(300, 300, this.grey_panel))]));
 
 	this.powerup_list = this.createPowerupsList();
 	this.enemy_color_list = this.createEnemyColorList();
@@ -445,6 +465,8 @@ function GameControl() {
 	this.powerup_generator = new Alias([0.165, 0.05, 0.21, 0.21, 0.1, 0.165, 0.1]);
 	this.enemy_generator = new Alias([0.3, 0.25, 0.25, 0.1, 0.1]);
 	// this.enemy_generator = new Alias([0, 0, 0, 0, 1]);
+	
+  this.setFunMode(true);
 }
 
 var gameControl;
@@ -458,8 +480,20 @@ function preload() {
 	sounds['brickhit'] = loadSound('assets/brickhit.ogg');
 	sounds['beat'] = loadSound('assets/beat.ogg');
 	sounds['death'] = loadSound('assets/death.ogg');
+	sounds['ready'] = loadSound('assets/ready.ogg');
+	sounds['set'] = loadSound('assets/set.ogg');
+	sounds['go'] = loadSound('assets/go.ogg');
+	
+	sounds['power_up'] = loadSound('assets/power_up.ogg');
+	sounds['level_up'] = loadSound('assets/level_up.ogg');
+	sounds['you_lose'] = loadSound('assets/you_lose.ogg');
+	sounds['game_over'] = loadSound('assets/game_over.ogg');
+	
 	for(var i = 1; i < 8; i++) {
 		sounds['powerUp'+i] = loadSound('assets/powerUp'+i+'.ogg');
+	}
+	for(var i = 1; i < 4; i++) {
+	  sounds['ship'+i] = loadSound('assets/ship'+i+'.ogg');
 	}
 	
 	fonts['blocks'] = loadFont('assets/blocks.ttf');
@@ -498,10 +532,14 @@ function keyPressed() {
 
 function mousePressed() {
 	if(gameControl.state === 2) {
-		gameControl.changeState(1);
+	  if(gameControl.fun_mode) {
+	    sounds['ready'].play();
+	    setTimeout(function() {sounds['set'].play() }, 500);
+	    setTimeout(function() {sounds['go'].play() }, 1100);
+		  setTimeout(function() { gameControl.changeState(1); }, 1500);
+	  } else {
+	    gameControl.changeState(1);
+	  }
+	 
 	}
 }
-
-/* CHANGE ENEMY SYSTEM TO PASS 'C'(color) instead of image, decide on properties from their. Use alias method to pick which one I want to use. 
-ALSO - MAKE ENEMIES HAVE FIRE RATES, AND MOVE IN DIFFERENT PATTERNS. LIKE SHORT BURSTS. ALSO SFX.
-*/
