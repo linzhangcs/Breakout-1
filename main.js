@@ -1,9 +1,11 @@
-/* 
+/*
 STATES:
 	0 = PAUSED
 	1 = RUNNING
 	2 = WAITING (DEAD/NEXT LEVEL)
 	3 = OUT OF LIVES
+
+	L = LOAD.
 */
 
 // function Menu(components) {
@@ -108,10 +110,8 @@ function Level(rows, cols, b_margin, offX, offY, filter, numcolors, background) 
 		}
 		return colors;
 	}
-	
+
 	this.bricksLeft = function() {
-		// Using for loop filter function instead of the built-in because it's ~ 1.81% faster
-		// http://jsperf.com/function-loops/10
 		var items = [];
 		for(var i = 0; i < this.level_items.length; i++) {
 			if(!(this.level_items[i] instanceof Powerup) && !(this.level_items[i] instanceof Wall)) items.push(this.level_items[i]);
@@ -124,18 +124,18 @@ function Level(rows, cols, b_margin, offX, offY, filter, numcolors, background) 
 	}
 
 	this.drawLevel = function() {
+		// Removed backgrounds because they mess with the general color scheme of the game.
 		// if(this.background) { this.drawBackground(); };
 		drawSprites(this.level_items);
 		drawSprites(this.enemy_list);
 		drawSprites(this.ball_list);
-    this.enemyLogic();
+    	this.enemyLogic();
 	}
-	
+
 	this.enemyLogic = function() {
 	  if(gameControl.state === 1) {
 			this.enemy_list.forEach(function(e) {
 				if(e instanceof Enemy) {
-					// e.rotate();
 					if(frameCount % e.fireRate === 0) {
 						e.shoot();
 					}
@@ -147,14 +147,14 @@ function Level(rows, cols, b_margin, offX, offY, filter, numcolors, background) 
 	this.drawBackground = function() {
 		var bg_width = this.background.width;
 		for(var i = 0; i < Math.ceil(width / bg_width); i++) {
-			image(this.background, i * bg_width, 0);		
+			image(this.background, i * bg_width, 0);
 		}
 	}
-	
+
 	this.getProperties = function() {
 		return [this.rows, this.cols, this.b_margin, this.offX, this.offY, '' + this.filter, this.numcolors];
 	}
-	
+
 	this.handleFilter = function(f) {
 		if(typeof f === 'string') {
 			return new Function('i', 'j', f.split('{')[1].split('}')[0]);
@@ -162,7 +162,7 @@ function Level(rows, cols, b_margin, offX, offY, filter, numcolors, background) 
 			return f || function() { return true; };
 		}
 	}
-	
+
 	this.clearPowerups = function() {
 		this.level_items.forEach(function(spr) {
 			if(spr instanceof Powerup) {
@@ -183,7 +183,7 @@ function Level(rows, cols, b_margin, offX, offY, filter, numcolors, background) 
 	this.getLevelItem = function(i) {
 		return this.level_items[i];
 	}
-	
+
 	this.rows = rows;
 	this.cols = cols;
 	this.b_margin = b_margin;
@@ -192,8 +192,8 @@ function Level(rows, cols, b_margin, offX, offY, filter, numcolors, background) 
 	this.filter = this.handleFilter(filter);
 	this.numcolors = numcolors || 8;
 
-	this.background = background; // || images['forest'];
-	
+	this.background = background;
+
 	this.colors = this.createLevelColors(this.numcolors);
 
 	this.level_items = new Group();
@@ -210,6 +210,7 @@ function GameControl() {
 
 	this.createLevelList = function() {
 		return [
+		  // [rows, cols, brick margin, x-Offset, y-Offset, level filter function, number of colors]
 		[9, 16, 4, (width / 2) - 15 * (40 + 4) / 2, 80, function(i, j) { return i === 0; }, 8],
 		[9, 16, 4, (width / 2) - 15 * (40 + 4) / 2, 80, function(i, j) { return j === 0; }, 8],
 		];
@@ -219,7 +220,7 @@ function GameControl() {
 		this.formatText(32, 'future', [255, 255, 255]);
 		if(this.state === 1) {
 			this.player.position.x = constrain(mouseX, this.player.width/2, windowWidth - this.player.width/2);
-			
+
 			this.player.handlePowerupTimers();
 
 			this.checkBallHits();
@@ -227,10 +228,10 @@ function GameControl() {
 
 			this.player_list.collide(this.currentLevel.level_items, this.player.triggerPowerup);
 
-			this.player_list.collide(this.currentLevel.enemy_list, function(t, e) { 
+			this.player_list.collide(this.currentLevel.enemy_list, function(t, e) {
 			  if(gameControl.player.lives > 0) {
-			      gameControl.player.lives--; 
-			      e.remove(); 
+			      gameControl.player.lives--;
+			      e.remove();
 			  } else {
 			    gameControl.changeState(3);
 			  }
@@ -248,15 +249,15 @@ function GameControl() {
 			text('Game Over! \nPress \'R\' to Restart!', (width / 2) - 32 * 4, (height / 2));
 		}
 		this.currentLevel.drawLevel();
-		
+
 		drawSprites(this.player_list);
-		
+
 		this.drawText();
-		
+
 		this.menu_list.forEach(function(m) {
 			m.drawComponents();
 		});
-		
+
 		if(frameCount % 360 === 0 && this.state === 1) {
 			this.generatePowerup();
 		}
@@ -266,7 +267,7 @@ function GameControl() {
 		}
 
 	}
-	
+
 	this.generatePowerup = function() {
 		var powerup = this.powerup_list[this.powerup_generator.next()];
 		this.currentLevel.level_items.add(new Powerup(random(width), random(250), powerup[0], powerup[1], random(4, 10)));
@@ -275,6 +276,11 @@ function GameControl() {
 	this.generateEnemy = function() {
 		var lowestRow = this.currentLevel.rows * (20 + this.currentLevel.b_margin);
 		this.currentLevel.enemy_list.add(new Enemy(40, lowestRow + random(20, 60), this.enemy_color_list[this.enemy_generator.next()]));
+	}
+
+	this.generateTip = function() {
+		var tips = ['Press L to load a previous game!', 'Press F to enable \'Fun Mode\'!', 'Match the color of a brick & ball to blow up all of that color!'];
+		return tips[Math.floor(Math.random() * tips.length)];
 	}
 
 	this.createPowerupsList = function() {
@@ -287,10 +293,6 @@ function GameControl() {
 		[ [128, 60, 0], function(level) { gameControl.player.timers['large'][0] = 0; if(gameControl.player_list.length === 1) { gameControl.player_list.add(new Paddle(gameControl.player.position.x, gameControl.player.position.y, 150, gameControl.player.height)); } gameControl.player.timers['splitpaddle'][0] += 500; } ],
 		[ [0, 128, 255], function(level) { gameControl.player.timers['slow'][0] += 500; gameControl.currentLevel.ball_list.forEach(function(b) { b.setSpeed(max_ball_speed / 2, b.getDirection()); }); }]
 		];
-	}
-	
-	this.createEnemyColorList = function() {
-	  return ['green', 'blue', 'beige', 'yellow', 'pink'];
 	}
 
 	this.garbageCollection = function() {
@@ -328,20 +330,20 @@ function GameControl() {
 
 	this.nextLevel = function() {
 	  if(this.fun_mode) sounds['level_up'].play();
-	  
+
 		this.currentLevel.level_items.forEach(function(s) {
 			s.remove();
 		});
-		
+
 		this.levelList.shift();
-		
+
 		if(this.levelList.length === 0) {
 			this.levelList.push(this.createLevel('random'));
 		}
 		this.currentLevel = this.createLevel(this.levelList[0]);
 		this.changeState(2);
 		this.level++;
-		
+
 		this.saveGame();
 	}
 
@@ -388,7 +390,7 @@ function GameControl() {
 		text('Level: '.concat(this.level), 0 + (32 / 2), 32 * 1.1);
 		text('Lives: '.concat(this.player.lives), width - (32 * 6), 32 * 1.1);
 	}
-	
+
 	this.formatText = function(size, font, nfill) {
 		textSize(size);
 		textFont(fonts[font]);
@@ -402,7 +404,7 @@ function GameControl() {
 			return new Level(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
 		}
 	}
-	
+
 	this.loadGame = function() {
 		var userSave = window.localStorage.getItem('save');
 		if(userSave !== undefined) {
@@ -420,7 +422,7 @@ function GameControl() {
 
 		}
 	}
-	
+
 	this.saveGame = function() {
 		window.localStorage.setItem('save', JSON.stringify({level: this.level, score: this.score, layout: this.currentLevel.getProperties(), lives: this.lives}));
 	}
@@ -428,11 +430,15 @@ function GameControl() {
 	this.getLevelItem = function(i) {
 		return this.currentLevel.getLevelItem(i);
 	}
-	
+
 	this.setFunMode = function(t) {
 	  if(t === true) {
 	    for(var i = 1; i < 8; i++) {
 	      sounds['powerUp' + i] = sounds['power_up'];
+	    }
+	  } else {
+	    for(var i = 1; i < 8; i++) {
+	      sounds['powerUp' + i] = loadSound('assets/powerUp' + i + '.ogg');
 	    }
 	  }
 	  this.fun_mode = t;
@@ -441,7 +447,7 @@ function GameControl() {
 	this.levelList = this.createLevelList();
 	this.currentLevel = this.createLevel(this.levelList[0]);
 	this.player_list = new Group();
-	
+
 	this.menu_list = [];
 
 	this.player = new Paddle(100, (windowHeight - 35), 150, 40);
@@ -451,22 +457,23 @@ function GameControl() {
 	this.level = 1;
 
 	this.state = 2;
-	
+
 	updateSprites(false);
 
 	sounds['beat'].amp(0.4);
+	sounds['beat'].rate(2);
 	sounds['death'].amp(0.4);
 // 	this.grey_panel = loadImage('assets/grey_panel.png');
 // 	this.menu_list.push(new Menu([new Button(100, 100, loadImage('assets/yellow_ball.png'), function() { return true; }, new Tooltip(300, 300, this.grey_panel))]));
 
 	this.powerup_list = this.createPowerupsList();
-	this.enemy_color_list = this.createEnemyColorList();
+	this.enemy_color_list = ['green', 'blue', 'beige', 'yellow', 'pink'];
 
 	this.powerup_generator = new Alias([0.165, 0.05, 0.21, 0.21, 0.1, 0.165, 0.1]);
 	this.enemy_generator = new Alias([0.3, 0.25, 0.25, 0.1, 0.1]);
 	// this.enemy_generator = new Alias([0, 0, 0, 0, 1]);
-	
-  this.setFunMode(true);
+
+  this.setFunMode(false);
 }
 
 var gameControl;
@@ -474,6 +481,7 @@ var sounds = {};
 var fonts = {};
 var images = {};
 var max_ball_speed = 9;
+var start_playing = false;
 
 function preload() {
 	sounds['paddlehit'] = loadSound('assets/paddlehit.ogg');
@@ -483,32 +491,29 @@ function preload() {
 	sounds['ready'] = loadSound('assets/ready.ogg');
 	sounds['set'] = loadSound('assets/set.ogg');
 	sounds['go'] = loadSound('assets/go.ogg');
-	
+
 	sounds['power_up'] = loadSound('assets/power_up.ogg');
 	sounds['level_up'] = loadSound('assets/level_up.ogg');
 	sounds['you_lose'] = loadSound('assets/you_lose.ogg');
 	sounds['game_over'] = loadSound('assets/game_over.ogg');
-	
-	for(var i = 1; i < 8; i++) {
-		sounds['powerUp'+i] = loadSound('assets/powerUp'+i+'.ogg');
-	}
-	for(var i = 1; i < 4; i++) {
-	  sounds['ship'+i] = loadSound('assets/ship'+i+'.ogg');
-	}
-	
+
 	fonts['blocks'] = loadFont('assets/blocks.ttf');
 	fonts['future'] = loadFont('assets/future.ttf');
-
-	images['castle'] = loadImage('assets/colored_castle.png');
-	images['forest'] = loadImage('assets/colored_forest.png');
-	images['desert'] = loadImage('assets/colored_desert.png');
-	images['talltrees'] = loadImage('assets/colored_talltrees.png');
 
 	images['green_ship'] = loadImage('assets/green_ship.png');
 	images['beige_ship'] = loadImage('assets/beige_ship.png');
 	images['yellow_ship'] = loadImage('assets/yellow_ship.png');
 	images['blue_ship'] = loadImage('assets/blue_ship.png');
 	images['pink_ship'] = loadImage('assets/pink_ship.png');
+
+	// sounds['powerUp1'] = loadSound('assets/powerUp1.ogg');
+	for(var i = 1; i < 8; i++) {
+		// console.log('assets/powerUp' + i + '.ogg');
+		sounds['powerUp'+i] = loadSound('assets/brickhit.ogg');
+	}
+	for(var i = 1; i < 4; i++) {
+	  sounds['ship'+i] = loadSound('assets/ship'+i+'.ogg');
+	}
 }
 
 function setup() {
@@ -533,13 +538,17 @@ function keyPressed() {
 function mousePressed() {
 	if(gameControl.state === 2) {
 	  if(gameControl.fun_mode) {
-	    sounds['ready'].play();
-	    setTimeout(function() {sounds['set'].play() }, 500);
-	    setTimeout(function() {sounds['go'].play() }, 1100);
-		  setTimeout(function() { gameControl.changeState(1); }, 1500);
+	    if(!start_playing) {
+	      sounds['ready'].play();
+	      start_playing = true;
+	      setTimeout(function() {sounds['set'].play() }, 500);
+	      setTimeout(function() {sounds['go'].play() }, 1100);
+  		  setTimeout(function() { gameControl.changeState(1); }, 1500);
+  		  setTimeout(function() {start_playing = false }, 1501);
+	    }
 	  } else {
 	    gameControl.changeState(1);
 	  }
-	 
+
 	}
 }

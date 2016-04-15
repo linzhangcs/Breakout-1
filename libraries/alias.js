@@ -1,13 +1,9 @@
-// This is a little version of Vose's Alias Method, adapted from this article 
-// http://www.keithschwarz.com/darts-dice-coins/
-// Initilization time is O(n), Generation Time is O(1), and Memory Usage is O(n)
-
 function Alias(probs) {
 
 	this.init = function(probs) {
 		probs = probs.map(function(v) { return v * probs.length; });
 
-		this.probability = []; 
+		this.probability = [];
 		this.alias = [];
 
 		var small = [];
