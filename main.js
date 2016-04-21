@@ -127,9 +127,9 @@ function Level(rows, cols, b_margin, offX, offY, filter, numcolors, background) 
 		// Removed backgrounds because they mess with the general color scheme of the game.
 		// if(this.background) { this.drawBackground(); };
 		drawSprites(this.level_items);
-		drawSprites(this.enemy_list);
+		// drawSprites(this.enemy_list);
 		drawSprites(this.ball_list);
-    	this.enemyLogic();
+    // this.enemyLogic();
 	}
 
 	this.enemyLogic = function() {
@@ -236,9 +236,9 @@ function GameControl() {
 			  }
 			});
 
-			this.currentLevel.enemy_list.collide(this.currentLevel.level_items, function(t, i) {
-			  t.velocity.x *= -1;
-			});
+			// this.currentLevel.enemy_list.collide(this.currentLevel.level_items, function(t, i) {
+			//   t.velocity.x *= -1;
+			// });
 
 		} else if(this.state === 0) {
 			text('PAUSED', (width / 2) - 32 * 2, (height / 2));
@@ -254,17 +254,17 @@ function GameControl() {
 
 		this.drawText();
 
-		this.menu_list.forEach(function(m) {
-			m.drawComponents();
-		});
+		// this.menu_list.forEach(function(m) {
+		// 	m.drawComponents();
+		// });
 
 		if(frameCount % 360 === 0 && this.state === 1) {
 			this.generatePowerup();
 		}
 
-		if(frameCount % 1500 === 0 && this.state === 1) {
-			this.generateEnemy();
-		}
+		// if(frameCount % 1500 === 0 && this.state === 1) {
+		// 	this.generateEnemy();
+		// }
 
 	}
 
