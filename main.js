@@ -244,6 +244,8 @@ function GameControl() {
 			text('PAUSED', (width / 2) - 32 * 2, (height / 2));
 		} else if(this.state === 2) {
 			text('Click to Begin', (width / 2) - 32 * 4, (height / 2));
+			this.formatText(32, 'bold', [120, 228, 24]);
+			text('BrickBreakeR', (width / 2) - 32 * 5, (height / 4));
 		} else if(this.state === 3) {
 			text('Game Over! \nPress \'R\' to Restart!', (width / 2) - 32 * 4, (height / 2));
 		}
@@ -500,6 +502,7 @@ function preload() {
 
 	fonts['blocks'] = loadFont('assets/blocks.ttf');
 	fonts['future'] = loadFont('assets/future.ttf');
+	fonts['bold'] = loadFont('assets/bold.ttf');
 
 	images['green_ship'] = loadImage('assets/green_ship.png');
 	images['beige_ship'] = loadImage('assets/beige_ship.png');
