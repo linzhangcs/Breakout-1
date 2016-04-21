@@ -114,7 +114,7 @@ function Level(rows, cols, b_margin, offX, offY, filter, numcolors, background) 
 	this.bricksLeft = function() {
 		var items = [];
 		for(var i = 0; i < this.level_items.length; i++) {
-			if(!(this.level_items[i] instanceof Powerup) && !(this.level_items[i] instanceof Wall)) items.push(this.level_items[i]);
+			if(!(this.level_items[i] instanceof Wall)) items.push(this.level_items[i]);
 		}
 		return items.length;
 	}
@@ -164,10 +164,8 @@ function Level(rows, cols, b_margin, offX, offY, filter, numcolors, background) 
 	}
 
 	this.clearPowerups = function() {
-		this.level_items.forEach(function(spr) {
-			if(spr instanceof Powerup) {
+		this.powerups.forEach(function(spr) {
 				spr.remove();
-			}
 		});
 		gameControl.player.timers = gameControl.player.createTimers();
 	}
@@ -197,6 +195,7 @@ function Level(rows, cols, b_margin, offX, offY, filter, numcolors, background) 
 	this.colors = this.createLevelColors(this.numcolors);
 
 	this.level_items = new Group();
+	this.powerups = new Group();
 	this.enemy_list = new Group();
 	this.ball_list = new Group();
 
@@ -226,7 +225,7 @@ function GameControl() {
 			this.checkBallHits();
 			this.garbageCollection();
 
-			this.player_list.collide(this.currentLevel.level_items, this.player.triggerPowerup);
+			this.player_list.overlap(this.currentLevel.powerups, this.player.triggerPowerup);
 
 			this.player_list.collide(this.currentLevel.enemy_list, function(t, e) {
 			  if(gameControl.player.lives > 0) {
@@ -251,6 +250,7 @@ function GameControl() {
 		this.currentLevel.drawLevel();
 
 		drawSprites(this.player_list);
+		drawSprites(this.currentLevel.powerups);
 
 		this.drawText();
 
@@ -270,7 +270,7 @@ function GameControl() {
 
 	this.generatePowerup = function() {
 		var powerup = this.powerup_list[this.powerup_generator.next()];
-		this.currentLevel.level_items.add(new Powerup(random(width), random(250), powerup[0], powerup[1], random(4, 10)));
+		this.currentLevel.powerups.add(new Powerup(random(width), random(250), powerup[0], powerup[1], random(4, 10)));
 	}
 
 	this.generateEnemy = function() {
@@ -290,14 +290,14 @@ function GameControl() {
 		[ [0, 0, 255], function(level) { gameControl.score += 5; } ],
 		[ [255, 0, 255], function(level) { gameControl.player.timers['large'][0] += 500; } ],
 		[ [128, 128, 255], function(level) { gameControl.player.timers['ycontrol'][0] += 500; } ],
-		[ [128, 60, 0], function(level) { gameControl.player.timers['large'][0] = 0; if(gameControl.player_list.length === 1) { gameControl.player_list.add(new Paddle(gameControl.player.position.x, gameControl.player.position.y, 150, gameControl.player.height)); } gameControl.player.timers['splitpaddle'][0] += 500; } ],
+		// [ [128, 60, 0], function(level) { gameControl.player.timers['large'][0] = 0; if(gameControl.player_list.length === 1) { gameControl.player_list.add(new Paddle(gameControl.player.position.x, gameControl.player.position.y, 150, gameControl.player.height)); } gameControl.player.timers['splitpaddle'][0] += 500; } ],
 		[ [0, 128, 255], function(level) { gameControl.player.timers['slow'][0] += 500; gameControl.currentLevel.ball_list.forEach(function(b) { b.setSpeed(max_ball_speed / 2, b.getDirection()); }); }]
 		];
 	}
 
 	this.garbageCollection = function() {
-		this.currentLevel.level_items.forEach(function(s) {
-			if(s instanceof Powerup && s.position.y >= height + 16) {
+		this.currentLevel.powerups.forEach(function(s) {
+			if(s.position.y >= height + 16) {
 				s.remove();
 			}
 		});
@@ -469,7 +469,8 @@ function GameControl() {
 	this.powerup_list = this.createPowerupsList();
 	this.enemy_color_list = ['green', 'blue', 'beige', 'yellow', 'pink'];
 
-	this.powerup_generator = new Alias([0.165, 0.05, 0.21, 0.21, 0.1, 0.165, 0.1]);
+	this.powerup_generator = new Alias([0.375, 0.05, 0.21, 0.1, 0.165, 0.1]);
+	// this.powerup_generator = new Alias([0.0, 0.0, 0.0, 0.5, 0.0, 0.5, 0.0]);
 	this.enemy_generator = new Alias([0.3, 0.25, 0.25, 0.1, 0.1]);
 	// this.enemy_generator = new Alias([0, 0, 0, 0, 1]);
 
