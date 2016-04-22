@@ -246,6 +246,10 @@ function GameControl() {
 			text('Click to Begin', (width / 2) - 32 * 4, (height / 2));
 			this.formatText(32, 'bold', [120, 228, 24]);
 			text('BrickBreakeR', (width / 2) - 32 * 5, (height / 4));
+			if(!game_started) {
+				this.formatText(20, 'bold', [51, 252, 32]);
+				text('Collect the powerups, and try to keep the ball on screen!', width / 5, height / 1.5);
+			}
 		} else if(this.state === 3) {
 			text('Game Over! \nPress \'R\' to Restart!', (width / 2) - 32 * 4, (height / 2));
 		}
@@ -485,6 +489,7 @@ var fonts = {};
 var images = {};
 var max_ball_speed = 9;
 var start_playing = false;
+var game_started = false;
 
 function preload() {
 	sounds['paddlehit'] = loadSound('assets/paddlehit.ogg');
@@ -541,6 +546,7 @@ function keyPressed() {
 
 function mousePressed() {
 	if(gameControl.state === 2) {
+		if(game_started === false) { game_started = true; };
 	  if(gameControl.fun_mode) {
 	    if(!start_playing) {
 	      sounds['ready'].play();
