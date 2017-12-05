@@ -218,8 +218,8 @@ function GameControl() {
 	this.draw = function() {
 		this.formatText(32, 'future', [255, 255, 255]);
 		if(this.state === 1) {
-			this.player.position.x = constrain(mouseX, this.player.width/2, windowWidth - this.player.width/2);
-
+			// this.player.position.x = constrain(mouseX, this.player.width/2, windowWidth - this.player.width/2);
+			this.player.position.x = xpos;
 			this.player.handlePowerupTimers();
 
 			this.checkBallHits();
@@ -264,10 +264,9 @@ function GameControl() {
 		// 	m.drawComponents();
 		// });
 
-		if(frameCount % 360 === 0 && this.state === 1) {
+		if(frameCount % 1000 === 0 && this.state === 1) {
 			//comment out powerups
 			this.generatePowerup();
-		// this.generateEnemy();
 		}
 
 		if(frameCount % 1500 === 0 && this.state === 1) {
@@ -297,9 +296,9 @@ function GameControl() {
 		[ [0, 255, 0], function(level) { gameControl.player.lives++; } ],
 		[ [0, 0, 255], function(level) { gameControl.score += 5; } ],
 		[ [255, 0, 255], function(level) { gameControl.player.timers['large'][0] += 500; } ],
-		[ [128, 128, 255], function(level) { gameControl.player.timers['ycontrol'][0] += 500; } ],
+		// [ [128, 128, 255], function(leve3l) { gameControl.player.timers['ycontrol'][0] += 500; } ],
 		// [ [128, 60, 0], function(level) { gameControl.player.timers['large'][0] = 0; if(gameControl.player_list.length === 1) { gameControl.player_list.add(new Paddle(gameControl.player.position.x, gameControl.player.position.y, 150, gameControl.player.height)); } gameControl.player.timers['splitpaddle'][0] += 500; } ],
-		[ [0, 128, 255], function(level) { gameControl.player.timers['slow'][0] += 500; gameControl.currentLevel.ball_list.forEach(function(b) { b.setSpeed(max_ball_speed / 2, b.getDirection()); }); }]
+		// [ [0, 128, 255], function(level) { gameControl.player.timers['slow'][0] += 500; gameControl.currentLevel.ball_list.forEach(function(b) { b.setSpeed(max_ball_speed / 2, b.getDirection()); }); }]
 		];
 	}
 
