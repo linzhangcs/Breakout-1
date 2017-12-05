@@ -7,6 +7,9 @@ STATES:
 
 	L = LOAD.
 */
+var serial; // variable to hold an instance of the serialport library
+var portName = '/dev/cu.wchusbserial1430'; // fill in your serial port name here
+var fromSerial = 0;
 
 function Menu(components) {
 
@@ -219,7 +222,7 @@ function GameControl() {
 		this.formatText(32, 'future', [255, 255, 255]);
 		if(this.state === 1) {
 			// this.player.position.x = constrain(mouseX, this.player.width/2, windowWidth - this.player.width/2);
-			this.player.position.x = xpos;
+			this.player.position.x = xPos;
 			this.player.handlePowerupTimers();
 
 			this.checkBallHits();
@@ -529,12 +532,62 @@ function preload() {
 function setup() {
 	createCanvas(windowWidth, windowHeight);
 	gameControl = new GameControl();
+
+	//setup for serial
+	serial = new p5.SerialPort(); // make a new instance of the serialport library
+	serial.on('list', printList); // set a callback function for the serialport list event
+	serial.on('connected', serverConnected); // callback for connecting to the server
+	serial.on('open', portOpen); // callback for the port opening
+	serial.on('data', serialEvent); // callback for when new data arrives
+	serial.on('error', serialError); // callback for errors
+	serial.on('close', portClose); // callback for the port closing
+
+	serial.list(); // list the serial ports
+	serial.open(portName); // open a serial port
 }
 
 function draw() {
 	background(50);
 	gameControl.draw();
 }
+// SerialPort functions starts here
+function serverConnected() {
+  print('connected to server.');
+}
+
+function portOpen() {
+  print('the serial port opened.')
+}
+
+function serialEvent() {
+  // read a string from the serial port:
+  var inString = serial.readLine();
+  // check to see that there's actually a string there:
+  if (inString.length > 0) {
+    // convert it to a number:
+    fromSerial = Number(inString);
+  }
+}
+
+
+function serialError(err) {
+  print('Something went wrong with the serial port. ' + err);
+}
+
+function portClose() {
+  print('The serial port closed.');
+}
+
+
+// get the list of ports:
+function printList(portList) {
+  // portList is an array of serial port names
+  for (var i = 0; i < portList.length; i++) {
+    // Display the list the console:
+    print(i + " " + portList[i]);
+  }
+}
+// SerialPort functions ends here
 
 function keyPressed() {
 	switch(keyCode) {
