@@ -8,83 +8,83 @@ STATES:
 	L = LOAD.
 */
 
-// function Menu(components) {
+function Menu(components) {
 
-// 	this.addComponent = function(component) {
-// 		this.components.add(component);
-// 	}
+	this.addComponent = function(component) {
+		this.components.add(component);
+	}
 
-// 	this.handleComponentParam = function(components) {
-// 		var newComp = new Group();
-// 		if(components instanceof Group) {
-// 			return components;
-// 		} else if(components instanceof Array) {
-// 			components.forEach(function(c) {
-// 				newComp.add(c);
-// 			});
-// 		} else if(components instanceof Sprite) {
-// 		  newComp.add(components);
-// 		}
-// 		return newComp;
-// 	}
+	this.handleComponentParam = function(components) {
+		var newComp = new Group();
+		if(components instanceof Group) {
+			return components;
+		} else if(components instanceof Array) {
+			components.forEach(function(c) {
+				newComp.add(c);
+			});
+		} else if(components instanceof Sprite) {
+		  newComp.add(components);
+		}
+		return newComp;
+	}
 
-// 	this.drawComponents = function() {
-// 		drawSprites(this.components);
-// 		this.components.forEach(function(c) {
-// 		  c.handleTooltip();
-// 		  if(c.tooltipActive) {
-// 		    c.tooltip.display();
-// 		  }
-// 		});
-// 	}
+	this.drawComponents = function() {
+		drawSprites(this.components);
+		this.components.forEach(function(c) {
+		  c.handleTooltip();
+		  if(c.tooltipActive) {
+		    c.tooltip.display();
+		  }
+		});
+	}
 
-// 	this.handleComponentCallbacks = function() {
-// 	}
+	this.handleComponentCallbacks = function() {
+	}
 
-// 	this.scaleAll = function(scale) {
-// 	  this.components.forEach(function(c) {
-// 	    c.scale = scale;
-// 	  });
-// 	}
+	this.scaleAll = function(scale) {
+	  this.components.forEach(function(c) {
+	    c.scale = scale;
+	  });
+	}
 
-// 	this.components = this.handleComponentParam(components);
-// }
+	this.components = this.handleComponentParam(components);
+}
 
-// function Button(x, y, image, callback, tooltip) {
-// 	Sprite.apply(this, [x, y].concat([0, 0]));
-//   this.scale = 0.5;
-// 	this.mouseActive = true;
-// 	this.tooltipActive = false;
+function Button(x, y, image, callback, tooltip) {
+	Sprite.apply(this, [x, y].concat([0, 0]));
+  this.scale = 0.5;
+	this.mouseActive = true;
+	this.tooltipActive = false;
 
-// 	this.tooltip = tooltip;
+	this.tooltip = tooltip;
 
-// 	this.handleTooltip = function() {
-// 		if(this.mouseIsOver) {
-// 			this.tooltipActive = true;
-// 		} else {
-// 		  	this.tooltipActive = false;
-// 		}
-// 	}
-// 	this.addImage(image);
+	this.handleTooltip = function() {
+		if(this.mouseIsOver) {
+			this.tooltipActive = true;
+		} else {
+		  	this.tooltipActive = false;
+		}
+	}
+	this.addImage(image);
 
-// 	this.depth = allSprites.maxDepth() + 1;
-// 	allSprites.add(this);
+	this.depth = allSprites.maxDepth() + 1;
+	allSprites.add(this);
 
-// 	this.callback = callback;
+	this.callback = callback;
 
-// }
+}
 
-// function Tooltip(x, y, image) {
-// 	Sprite.apply(this, [x, y].concat([0, 0]));
+function Tooltip(x, y, image) {
+	Sprite.apply(this, [x, y].concat([0, 0]));
 
-// 	this.depth = allSprites.maxDepth() + 1;
-// 	allSprites.add(this);
+	this.depth = allSprites.maxDepth() + 1;
+	allSprites.add(this);
 
-// 	this.addImage(image);
-// }
+	this.addImage(image);
+}
 
-// Button.prototype = Object.create(Sprite.prototype);
-// Tooltip.prototype = Object.create(Sprite.prototype);
+Button.prototype = Object.create(Sprite.prototype);
+Tooltip.prototype = Object.create(Sprite.prototype);
 
 
 function Level(rows, cols, b_margin, offX, offY, filter, numcolors, background) {
@@ -125,11 +125,11 @@ function Level(rows, cols, b_margin, offX, offY, filter, numcolors, background) 
 
 	this.drawLevel = function() {
 		// Removed backgrounds because they mess with the general color scheme of the game.
-		// if(this.background) { this.drawBackground(); };
+		if(this.background) { this.drawBackground(); };
 		drawSprites(this.level_items);
-		// drawSprites(this.enemy_list);
+		drawSprites(this.enemy_list);
 		drawSprites(this.ball_list);
-    // this.enemyLogic();
+    this.enemyLogic();
 	}
 
 	this.enemyLogic = function() {
@@ -265,12 +265,14 @@ function GameControl() {
 		// });
 
 		if(frameCount % 360 === 0 && this.state === 1) {
+			//comment out powerups
 			this.generatePowerup();
+		// this.generateEnemy();
 		}
 
-		// if(frameCount % 1500 === 0 && this.state === 1) {
-		// 	this.generateEnemy();
-		// }
+		if(frameCount % 1500 === 0 && this.state === 1) {
+			this.generateEnemy();
+		}
 
 	}
 
@@ -469,8 +471,8 @@ function GameControl() {
 	sounds['beat'].amp(0.4);
 	sounds['beat'].rate(2);
 	sounds['death'].amp(0.4);
-// 	this.grey_panel = loadImage('assets/grey_panel.png');
-// 	this.menu_list.push(new Menu([new Button(100, 100, loadImage('assets/yellow_ball.png'), function() { return true; }, new Tooltip(300, 300, this.grey_panel))]));
+	this.grey_panel = loadImage('assets/grey_panel.png');
+	this.menu_list.push(new Menu([new Button(100, 100, loadImage('assets/yellow_ball.png'), function() { return true; }, new Tooltip(300, 300, this.grey_panel))]));
 
 	this.powerup_list = this.createPowerupsList();
 	this.enemy_color_list = ['green', 'blue', 'beige', 'yellow', 'pink'];
