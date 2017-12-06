@@ -9,7 +9,7 @@ STATES:
 */
 var serial; // variable to hold an instance of the serialport library
 var portName = '/dev/cu.wchusbserial1430'; // fill in your serial port name here
-var fromSerial = 0;
+var angle = 0;
 
 function Menu(components) {
 
@@ -222,7 +222,11 @@ function GameControl() {
 		this.formatText(32, 'future', [255, 255, 255]);
 		if(this.state === 1) {
 			// this.player.position.x = constrain(mouseX, this.player.width/2, windowWidth - this.player.width/2);
-			this.player.position.x = xPos;
+
+			this.player.position.x = map(angle, 0, 26, 0, windowWidth);
+			console.log(windowWidth);
+			console.log(map(angle, 0, 26, 0, windowWidth));
+
 			this.player.handlePowerupTimers();
 
 			this.checkBallHits();
@@ -552,23 +556,24 @@ function draw() {
 }
 // SerialPort functions starts here
 function serverConnected() {
-  print('connected to server.');
+  console.log('connected to server.');
 }
 
 function portOpen() {
-  print('the serial port opened.')
+	console.log('the serial port opened.')
 }
 
 function serialEvent() {
   // read a string from the serial port:
-  var inString = serial.readLine();
+  var stringFromSerial = serial.readLine();
   // check to see that there's actually a string there:
-  if (inString.length > 0) {
+  if (stringFromSerial.length > 0) {
+		stringFromSerial = trim(stringFromSerial)
     // convert it to a number:
-    fromSerial = Number(inString);
+    angle = Number(stringFromSerial);
+		console.log(angle);
   }
 }
-
 
 function serialError(err) {
   print('Something went wrong with the serial port. ' + err);
@@ -587,7 +592,13 @@ function printList(portList) {
     print(i + " " + portList[i]);
   }
 }
-// SerialPort functions ends here
+// SerialPort functions ends
+
+function translateAngleToX(angle){
+	// Calibrate the seesaw to the Left in the beginning
+	// angle range : left: 0.5 - right: 25+ / horitzonal ~ 12
+	// return
+}
 
 function keyPressed() {
 	switch(keyCode) {
