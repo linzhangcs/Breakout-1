@@ -221,9 +221,9 @@ function GameControl() {
 	this.draw = function() {
 		this.formatText(32, 'future', [255, 255, 255]);
 		if(this.state === 1) {
-			// this.player.position.x = constrain(mouseX, this.player.width/2, windowWidth - this.player.width/2);
+			this.player.position.x = constrain(mouseX, this.player.width/2, windowWidth - this.player.width/2);
 
-			this.player.position.x = map(angle, 0, 26, 0, windowWidth);
+			// this.player.position.x = map(angle, 0, 26, 0, windowWidth);
 			console.log(windowWidth);
 			console.log(map(angle, 0, 26, 0, windowWidth));
 
@@ -495,7 +495,9 @@ var gameControl;
 var sounds = {};
 var fonts = {};
 var images = {};
-var max_ball_speed = 9;
+// var max_ball_speed = 9;
+var max_ball_speed = 5;
+
 var start_playing = false;
 var game_started = false;
 
