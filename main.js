@@ -7,7 +7,13 @@ STATES:
 
 	L = LOAD.
 */
-var serial; // variable to hold an instance of the serialport library
+/**
+*TODO: the game doesn't stop at lives:0
+* Powerup error
+* background images
+*/
+
+var serial;
 var portName = '/dev/cu.wchusbserial1430'; // fill in your serial port name here
 var angle = 0;
 
@@ -212,9 +218,9 @@ function GameControl() {
 
 	this.createLevelList = function() {
 		return [
-		  // [rows, cols, brick margin, x-Offset, y-Offset, level filter function, number of colors]
-		[9, 16, 4, (width / 2) - 15 * (40 + 4) / 2, 80, function(i, j) { return i === 0; }, 8],
-		[9, 16, 4, (width / 2) - 15 * (40 + 4) / 2, 80, function(i, j) { return j === 0; }, 8],
+		  // [rows, cols, brick margin, x-Offset, y-Offset, level filter function, number of colors, background]
+		[9, 16, 4, (width / 2) - 15 * (40 + 4) / 2, 80, function(i, j) { return i === 0; }, 8, 'forest'],
+		[9, 16, 4, (width / 2) - 15 * (40 + 4) / 2, 80, function(i, j) { return j === 0; }, 8, 'talltrees'],
 		];
 	}
 
@@ -222,10 +228,8 @@ function GameControl() {
 		this.formatText(32, 'future', [255, 255, 255]);
 		if(this.state === 1) {
 			this.player.position.x = constrain(mouseX, this.player.width/2, windowWidth - this.player.width/2);
-
-			// this.player.position.x = map(angle, 0, 26, 0, windowWidth);
-			console.log(windowWidth);
-			console.log(map(angle, 0, 26, 0, windowWidth));
+			// this.player.position.x = map(angle, 7, 20, 0, windowWidth);
+			console.log(map(angle, 7, 20, 0, windowWidth));
 
 			this.player.handlePowerupTimers();
 
@@ -251,11 +255,11 @@ function GameControl() {
 			text('PAUSED', (width / 2) - 32 * 2, (height / 2));
 		} else if(this.state === 2) {
 			text('Click to Begin', (width / 2) - 32 * 4, (height / 2));
-			this.formatText(32, 'bold', [120, 228, 24]);
-			text('BrickBreakeR', (width / 2) - 32 * 5, (height / 4));
+			this.formatText(32, 'bold', [100,143,243]);
+			text('Brick Breaker', (width / 2) - 32 * 5, (height / 4));
 			if(!game_started) {
-				this.formatText(20, 'bold', [51, 252, 32]);
-				text('Collect the powerups, and try to keep the ball on screen!', width / 5, height / 1.5);
+				this.formatText(20, 'bold', [100,143,243]);
+				text('Do not drop the ball! ', width / 2.5, height / 1.5);
 			}
 		} else if(this.state === 3) {
 			text('Game Over! \nPress \'R\' to Restart!', (width / 2) - 32 * 4, (height / 2));
@@ -273,7 +277,7 @@ function GameControl() {
 
 		if(frameCount % 1000 === 0 && this.state === 1) {
 			//comment out powerups
-			this.generatePowerup();
+			// this.generatePowerup();
 		}
 
 		if(frameCount % 1500 === 0 && this.state === 1) {
@@ -284,7 +288,9 @@ function GameControl() {
 
 	this.generatePowerup = function() {
 		var powerup = this.powerup_list[this.powerup_generator.next()];
+
 		this.currentLevel.powerups.add(new Powerup(random(width), random(250), powerup[0], powerup[1], random(4, 10)));
+		console.log("this.currentLevel.powerups "+ this.currentLevel.powerups);
 	}
 
 	this.generateEnemy = function() {
@@ -355,7 +361,7 @@ function GameControl() {
 			this.levelList.push(this.createLevel('random'));
 		}
 		this.currentLevel = this.createLevel(this.levelList[0]);
-		this.changeState(2);
+		// this.changeState(2);
 		this.level++;
 
 		this.saveGame();
@@ -366,11 +372,11 @@ function GameControl() {
 	}
 
 	this.loseBall = function(b) {
-		if(this.currentLevel.ball_list.length === 1) {
+		if(this.currentLevel.ball_list.length === 1){
 			if(this.player.lives > 0) {
 				this.currentLevel.clearPowerups();
+				// Reset postion
 				b.reset(500, 400);
-
 				this.player.position.x = 500;
 				this.changeState(2);
 			} else {
@@ -496,7 +502,7 @@ var sounds = {};
 var fonts = {};
 var images = {};
 // var max_ball_speed = 9;
-var max_ball_speed = 5;
+var max_ball_speed = 7;
 
 var start_playing = false;
 var game_started = false;
@@ -509,6 +515,11 @@ function preload() {
 	sounds['ready'] = loadSound('assets/ready.ogg');
 	sounds['set'] = loadSound('assets/set.ogg');
 	sounds['go'] = loadSound('assets/go.ogg');
+
+	images['castle'] = loadImage('assets/colored_castle.png');
+	images['desert'] = loadImage('assets/colored_desert.png');
+	images['forest'] = loadImage('assets/colored_forest.png');
+	images['talltrees'] = loadImage('assets/colored_talltrees.png');
 
 	sounds['power_up'] = loadSound('assets/power_up.ogg');
 	sounds['level_up'] = loadSound('assets/level_up.ogg');
@@ -553,7 +564,8 @@ function setup() {
 }
 
 function draw() {
-	background(50);
+	background(100);
+	console.log("max_speed: "+ max_ball_speed);
 	gameControl.draw();
 }
 // SerialPort functions starts here

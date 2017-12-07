@@ -1,7 +1,7 @@
 function Ball(x, y, w, h, vX, vY, c) {
 	Sprite.apply(this, arguments);
 	this.shapeColor = c;
-  
+
 	this.itemHit = function(t, i) {
 		if(i instanceof Brick) {
 			if(i.shapeColor === this.shapeColor) {
@@ -19,10 +19,10 @@ function Ball(x, y, w, h, vX, vY, c) {
 			sounds['brickhit'].play();
 
 			var newColor = gameControl.currentLevel.chooseColor();
-			
+
 			this.shapeColor = newColor;
 			gameControl.player.shapeColor = newColor;
-			
+
 			if(gameControl.currentLevel.bricksLeft() === 0) {
 				gameControl.nextLevel();
 			}
@@ -39,9 +39,9 @@ function Ball(x, y, w, h, vX, vY, c) {
         gameControl.score += 3;
       }
 		}
-		
+
 	}
-	
+
 	this.reset = function(x, y) {
 	  gameControl.player.lives--;
 		this.position.x = x;
