@@ -225,11 +225,11 @@ function GameControl() {
 	}
 
 	this.draw = function() {
-		this.formatText(32, 'future', [255, 255, 255]);
+		this.formatText(32, 'krungthep', [255, 255, 255]);
 		if(this.state === 1) {
 			this.player.position.x = constrain(mouseX, this.player.width/2, windowWidth - this.player.width/2);
-			// this.player.position.x = map(angle, 7, 20, 0, windowWidth);
-			console.log(map(angle, 7, 20, 0, windowWidth));
+			// this.player.position.x = map(angle, 1, 25, 0, windowWidth-0);
+			console.log(map(angle, 1, 26, 0, windowWidth));
 
 			this.player.handlePowerupTimers();
 
@@ -254,12 +254,13 @@ function GameControl() {
 		} else if(this.state === 0) {
 			text('PAUSED', (width / 2) - 32 * 2, (height / 2));
 		} else if(this.state === 2) {
-			text('Click to Begin', (width / 2) - 32 * 4, (height / 2));
-			this.formatText(32, 'bold', [100,143,243]);
-			text('Brick Breaker', (width / 2) - 32 * 5, (height / 4));
+			// text('Click to Begin', (width / 2) - 32 * 4, (height / 2));
+			// this.formatText(32, 'krungthep', [100,143,243]);
+			this.formatText(55, 'krungthep', [255, 255, 255]);
+			text('BRICK BREAKER', (width / 2) - 32 * 7, (height / 3));
 			if(!game_started) {
-				this.formatText(20, 'bold', [100,143,243]);
-				text('Do not drop the ball! ', width / 2.5, height / 1.5);
+				this.formatText(32, 'krungthep', [234, 183, 111]);
+				text('SIT TO START ', width / 2.3, height / 1.5);
 			}
 		} else if(this.state === 3) {
 			text('Game Over! \nPress \'R\' to Restart!', (width / 2) - 32 * 4, (height / 2));
@@ -401,14 +402,14 @@ function GameControl() {
 			sounds['beat'].loop();
 			updateSprites(true);
 		}
-		this.state = s;
+		this.state = s
 	}
 
 	this.drawText = function() {
-		this.formatText(32, 'blocks', [255, 255, 255]);
-		text('Score: '.concat(this.score), (width / 2) - (32 * 2), 32 * 1.1);
-		text('Level: '.concat(this.level), 0 + (32 / 2), 32 * 1.1);
-		text('Lives: '.concat(this.player.lives), width - (32 * 6), 32 * 1.1);
+		this.formatText(32, 'krungthep', [255, 255, 255]);
+		text('SCORE: '.concat(this.score), (width / 2) - (32 * 2), 32 * 1.5);
+		text('LEVEL: '.concat(this.level), 0 + (32 / 2), 32 * 1.5);
+		text('LIVES: '.concat(this.player.lives), width - (32 * 6), 32 * 1.5);
 	}
 
 	this.formatText = function(size, font, nfill) {
@@ -470,7 +471,7 @@ function GameControl() {
 
 	this.menu_list = [];
 
-	this.player = new Paddle(100, (windowHeight - 35), 150, 40);
+	this.player = new Paddle(100, (windowHeight - 35), 180, 40);
 	this.player_list.add(this.player);
 
 	this.score = 0;
@@ -527,8 +528,9 @@ function preload() {
 	sounds['game_over'] = loadSound('assets/game_over.ogg');
 
 	fonts['blocks'] = loadFont('assets/blocks.ttf');
-	fonts['future'] = loadFont('assets/future.ttf');
-	fonts['bold'] = loadFont('assets/bold.ttf');
+	fonts['krungthep'] = loadFont('assets/Krungthep.ttf');
+	// fonts['future'] = loadFont('assets/future.ttf');
+	// fonts['bold'] = loadFont('assets/bold.ttf');
 
 	images['green_ship'] = loadImage('assets/green_ship.png');
 	images['beige_ship'] = loadImage('assets/beige_ship.png');
@@ -564,8 +566,8 @@ function setup() {
 }
 
 function draw() {
-	background(100);
-	console.log("max_speed: "+ max_ball_speed);
+	background(0);
+	// console.log("max_speed: "+ max_ball_speed);
 	gameControl.draw();
 }
 // SerialPort functions starts here
