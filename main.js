@@ -136,7 +136,7 @@ function Level(rows, cols, b_margin, offX, offY, filter, numcolors, background) 
 
 	this.drawLevel = function() {
 		// Removed backgrounds because they mess with the general color scheme of the game.
-		if(this.background) { this.drawBackground(); };
+		// if(this.background) { this.drawBackground(); };
 		drawSprites(this.level_items);
 		drawSprites(this.enemy_list);
 		drawSprites(this.ball_list);
@@ -224,8 +224,8 @@ function GameControl() {
 		  // [rows, cols, brick margin, x-Offset, y-Offset, level filter function, number of colors, background]
 		// [9, 16, 4, (width / 2) - 15 * (40 + 4) / 2, 80, function(i, j) { return i === 0; }, 8, 'forest'],
 		// [9, 16, 4, (width / 2) - 15 * (40 + 4) / 2, 80, function(i, j) { return j === 0; }, 8, 'talltrees'],
-		[9, 10, 0, (width / 2) - 15 * (85 + 4) / 2, 150, function(i, j) { return i === 0; }, 8, 'forest'],
-		[6, 20, 0, (width / 2) - 15 * (85 + 4) / 2, 150, function(i, j) { return j === 0; }, 5, 'talltrees']
+		[9, 10, 0, (width / 2) - 15 * (85 + 4) / 2, 180, function(i, j) { return i === 0; }, 8, 'forest'],
+		[6, 20, 0, (width / 2) - 15 * (85 + 4) / 2, 180, function(i, j) { return j === 0; }, 5, 'talltrees']
 		];
 	}
 
@@ -264,11 +264,11 @@ function GameControl() {
 		} else if(this.state === 2) {
 			// text('Click to Begin', (width / 2) - 32 * 4, (height / 2));
 			// this.formatText(32, 'krungthep', [100,143,243]);
-			this.formatText(78, 'krungthep', [255, 255, 255]);
-			text('BRICK BREAKER', (width / 2) - 32 * 9, (height / 2));
+			this.formatText(82, 'krungthep', [255, 255, 255]);
+			text('BRICK BREAKER', (width / 2) - 32 * 9, (height / 2.2));
 			if(!game_started) {
 				this.formatText(32, 'krungthep', [234, 183, 111]);
-				text('SIT TO START ', width / 2.3, height / 1.7);
+				text('SIT TO START ', width / 2.2, height / 1.7);
 			}
 		} else if(this.state === 3) {
 			text('Game Over! \nPress \'R\' to Restart!', (width / 2) - 32 * 4, (height / 2));
@@ -419,9 +419,9 @@ function GameControl() {
 		// text('SCORE: '.concat(this.score), (width / 2) - 15 * (85 + 4), 32 * 1.5);
 		// text('LEVEL: '.concat(this.level), (width / 2) - 15 * (85 + 4) / 2, 32 * 1.5);
 		// text('LIVES: '.concat(this.player.lives), width - 15 * (85 + 4), 32 * 1.5);
-		text('SCORE: '.concat(this.score), (width / 2) - 15 * (95 + 4) / 38, 32 * 2.5);
-		text('LEVEL: '.concat(this.level), (width / 2) - 15 * (95 + 4) / 2, 32 * 2.5);
-		text('LIVES: '.concat(this.player.lives), width - 15 * (95 + 4) / 7, 32 * 2.5);
+		text('SCORE: '.concat(this.score), (width / 2) - 15 * (95 + 4) / 38, 32 * 2.8);
+		text('LEVEL: '.concat(this.level), (width / 2) - 15 * (95 + 4) / 2, 32 * 2.8);
+		text('LIVES: '.concat(this.player.lives), width - 15 * (95 + 4) / 7, 32 * 2.8);
 	}
 
 	this.formatText = function(size, font, nfill) {
