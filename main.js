@@ -414,9 +414,12 @@ function GameControl() {
 	// Drawing game info
 	this.drawText = function() {
 		this.formatText(32, 'krungthep', [255, 255, 255]);
-		text('SCORE: '.concat(this.score), (width / 2) - 15 * (85 + 4), 32 * 1.5);
-		text('LEVEL: '.concat(this.level), (width / 2) - 15 * (85 + 4) / 2, 32 * 1.5);
-		text('LIVES: '.concat(this.player.lives), width - 15 * (85 + 4), 32 * 1.5);
+		// text('SCORE: '.concat(this.score), (width / 2) - 15 * (85 + 4), 32 * 1.5);
+		// text('LEVEL: '.concat(this.level), (width / 2) - 15 * (85 + 4) / 2, 32 * 1.5);
+		// text('LIVES: '.concat(this.player.lives), width - 15 * (85 + 4), 32 * 1.5);
+		text('SCORE: '.concat(this.score), (width / 2) - 15 * (95 + 4) / 38, 32 * 1.5);
+		text('LEVEL: '.concat(this.level), (width / 2) - 15 * (95 + 4) / 2, 32 * 1.5);
+		text('LIVES: '.concat(this.player.lives), width - 15 * (95 + 4) / 7, 32 * 1.5);
 	}
 
 	this.formatText = function(size, font, nfill) {
