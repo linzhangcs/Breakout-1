@@ -212,7 +212,7 @@ function Level(rows, cols, b_margin, offX, offY, filter, numcolors, background) 
 
 	this.createLayout(rows, cols, b_margin, offX, offY, this.filter, this.colors);
 
-	this.ball_list.add(new Ball(500, 400, 15, 15, 5, 5, this.chooseColor()));
+	this.ball_list.add(new Ball(width/2, height-100, 15, 15, 5, 5, this.chooseColor()));
 
 }
 
@@ -225,8 +225,10 @@ function GameControl() {
 		// [9, 16, 4, (width / 2) - 15 * (40 + 4) / 2, 80, function(i, j) { return i === 0; }, 8, 'forest'],
 		// [9, 16, 4, (width / 2) - 15 * (40 + 4) / 2, 80, function(i, j) { return j === 0; }, 8, 'talltrees'],
 
-		[9, 10, 0, (width / 2) - 15 * (85 + 4) / 2, 100, function(i, j) { return i === 0; }, 8, 'forest'],
-		[9, 16, 4, (width / 2) - 15 * (brickWidth + 4) / 2, 80, function(i, j) { return j === 0; }, 8, 'talltrees'],
+		[9, 10, 0, (width / 2) - 15 * (85 + 4) / 2, 120, function(i, j) { return i === 0; }, 8, 'forest'],
+		[6, 20, 0, (width / 2) - 15 * (85 + 4) / 2, 120, function(i, j) { return j === 0; }, 5, 'talltrees'],
+		[10, 10, 0, (width / 2) - 15 * (85 + 4) / 2, 120, function(i, j) { return i === 0; }, 6, 'forest'],
+		[2, 63, 0, (width / 2) - 15 * (85 + 4) / 2, 120, function(i, j) { return j === 0; }, 4, 'talltrees'],
 		];
 	}
 
@@ -262,10 +264,10 @@ function GameControl() {
 		} else if(this.state === 2) {
 			// text('Click to Begin', (width / 2) - 32 * 4, (height / 2));
 			// this.formatText(32, 'krungthep', [100,143,243]);
-			this.formatText(55, 'krungthep', [255, 255, 255]);
+			this.formatText(62, 'krungthep', [255, 255, 255]);
 			text('BRICK BREAKER', (width / 2) - 32 * 7, (height / 3));
 			if(!game_started) {
-				this.formatText(32, 'krungthep', [234, 183, 111]);
+				this.formatText(42, 'krungthep', [234, 183, 111]);
 				text('SIT TO START ', width / 2.3, height / 1.5);
 			}
 		} else if(this.state === 3) {
@@ -310,17 +312,17 @@ function GameControl() {
 		return tips[Math.floor(Math.random() * tips.length)];
 	}
 
-	this.createPowerupsList = function() {
-		return [
-		[ [255, 0, 0], function(level) { level.ball_list.add(new Ball(random(width), 400, 15, 15, 5, random(4, 10), level.chooseColor())) }],
-		[ [0, 255, 0], function(level) { gameControl.player.lives++; } ],
-		[ [0, 0, 255], function(level) { gameControl.score += 5; } ],
-		[ [255, 0, 255], function(level) { gameControl.player.timers['large'][0] += 500; } ],
-		// [ [128, 128, 255], function(leve3l) { gameControl.player.timers['ycontrol'][0] += 500; } ],
-		// [ [128, 60, 0], function(level) { gameControl.player.timers['large'][0] = 0; if(gameControl.player_list.length === 1) { gameControl.player_list.add(new Paddle(gameControl.player.position.x, gameControl.player.position.y, 150, gameControl.player.height)); } gameControl.player.timers['splitpaddle'][0] += 500; } ],
-		// [ [0, 128, 255], function(level) { gameControl.player.timers['slow'][0] += 500; gameControl.currentLevel.ball_list.forEach(function(b) { b.setSpeed(max_ball_speed / 2, b.getDirection()); }); }]
-		];
-	}
+	// this.createPowerupsList = function() {
+	// 	return [
+	// 	[ [255, 0, 0], function(level) { level.ball_list.add(new Ball(random(width), 400, 15, 15, 5, random(4, 10), level.chooseColor())) }],
+	// 	[ [0, 255, 0], function(level) { gameControl.player.lives++; } ],
+	// 	[ [0, 0, 255], function(level) { gameControl.score += 5; } ],
+	// 	[ [255, 0, 255], function(level) { gameControl.player.timers['large'][0] += 500; } ],
+	// 	// [ [128, 128, 255], function(leve3l) { gameControl.player.timers['ycontrol'][0] += 500; } ],
+	// 	// [ [128, 60, 0], function(level) { gameControl.player.timers['large'][0] = 0; if(gameControl.player_list.length === 1) { gameControl.player_list.add(new Paddle(gameControl.player.position.x, gameControl.player.position.y, 150, gameControl.player.height)); } gameControl.player.timers['splitpaddle'][0] += 500; } ],
+	// 	// [ [0, 128, 255], function(level) { gameControl.player.timers['slow'][0] += 500; gameControl.currentLevel.ball_list.forEach(function(b) { b.setSpeed(max_ball_speed / 2, b.getDirection()); }); }]
+	// 	];
+	// }
 
 	this.garbageCollection = function() {
 		this.currentLevel.powerups.forEach(function(s) {
@@ -417,9 +419,9 @@ function GameControl() {
 		// text('SCORE: '.concat(this.score), (width / 2) - 15 * (85 + 4), 32 * 1.5);
 		// text('LEVEL: '.concat(this.level), (width / 2) - 15 * (85 + 4) / 2, 32 * 1.5);
 		// text('LIVES: '.concat(this.player.lives), width - 15 * (85 + 4), 32 * 1.5);
-		text('SCORE: '.concat(this.score), (width / 2) - 15 * (95 + 4) / 38, 32 * 1.5);
-		text('LEVEL: '.concat(this.level), (width / 2) - 15 * (95 + 4) / 2, 32 * 1.5);
-		text('LIVES: '.concat(this.player.lives), width - 15 * (95 + 4) / 7, 32 * 1.5);
+		text('SCORE: '.concat(this.score), (width / 2) - 15 * (95 + 4) / 38, 32 * 2);
+		text('LEVEL: '.concat(this.level), (width / 2) - 15 * (95 + 4) / 2, 32 * 2);
+		text('LIVES: '.concat(this.player.lives), width - 15 * (95 + 4) / 7, 32 * 2);
 	}
 
 	this.formatText = function(size, font, nfill) {
@@ -430,7 +432,8 @@ function GameControl() {
 
 	this.createLevel = function(args) {
 		if(args === 'random') {
-			return [Math.floor(random(4, 15)), Math.floor(random(4, 15)), random(3, 10), random(100, ((width / 2) - 15 * (40) / 2) + 400), random(100, 150), function(i, j) { return i % Math.floor(Math.random() * 4) === 0 || j % Math.floor(Math.random() * 4) === 0}, Math.ceil(random(4, 16))];
+			// return [Math.floor(random(4, 15)), Math.floor(random(4, 15)), random(3, 10), random(100, ((width / 2) - 15 * (40) / 2) + 400), random(100, 150), function(i, j) { return i % Math.floor(Math.random() * 4) === 0 || j % Math.floor(Math.random() * 4) === 0}, Math.ceil(random(4, 16))];
+			return [Math.floor(random(4, 15)), Math.floor(random(4, 15)), 0, random(100, ((width / 2) - 15 * (40) / 2) + 400), random(100, 150), function(i, j) { return i % Math.floor(Math.random() * 4) === 0 || j % Math.floor(Math.random() * 4) === 0}, Math.ceil(random(4, 16))];
 		} else {
 			return new Level(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
 		}
@@ -481,7 +484,7 @@ function GameControl() {
 
 	this.menu_list = [];
 
-	this.player = new Paddle(100, (windowHeight - 35), 180, 40);
+	this.player = new Paddle(width/2, (windowHeight - 20), 250, 30);
 	this.player_list.add(this.player);
 
 	this.score = 0;
@@ -497,7 +500,7 @@ function GameControl() {
 	this.grey_panel = loadImage('assets/grey_panel.png');
 	this.menu_list.push(new Menu([new Button(100, 100, loadImage('assets/yellow_ball.png'), function() { return true; }, new Tooltip(300, 300, this.grey_panel))]));
 
-	this.powerup_list = this.createPowerupsList();
+	// this.powerup_list = this.createPowerupsList();
 	this.enemy_color_list = ['green', 'blue', 'beige', 'yellow', 'pink'];
 
 	this.powerup_generator = new Alias([0.375, 0.05, 0.21, 0.1, 0.165, 0.1]);
@@ -617,13 +620,6 @@ function printList(portList) {
     // Display the list the console:
     print(i + " " + portList[i]);
   }
-}
-// SerialPort functions ends
-
-function translateAngleToX(angle){
-	// Calibrate the seesaw to the Left in the beginning
-	// angle range : left: 0.5 - right: 25+ / horitzonal ~ 12
-	// return
 }
 
 function keyPressed() {

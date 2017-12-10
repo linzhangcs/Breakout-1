@@ -6,7 +6,7 @@ function Paddle(x, y, w, h, l) {
   // Put createTimers into a function for quicker resetting of timers.
 	this.createTimers = function() {
 	  return {
-  		large: [0, function(paddle) { paddle.width = 250; }, function(paddle) { paddle.width = 150; }, false],
+  		large: [0, function(paddle) { paddle.width = 250; }, function(paddle) { paddle.width = 250; }, false],
   		// ycontrol: [0, function(paddle) { paddle.position.y = constrain(mouseY, paddle.height / 2, height - paddle.height / 2)}, function(paddle) { paddle.position.y = height - 35; }, false],
   		// splitpaddle: [0, function(paddle) { gameControl.player_list[1].position.x = paddle.position.x - 250; gameControl.player_list[1].position.y = paddle.position.y; }, function(paddle) { if(gameControl.player_list.length > 1) { gameControl.player_list[1].remove(); } }, false],
   		// slow: [0, function(paddle) { max_ball_speed = 4.5; }, function(paddle) { max_ball_speed = 9; }, false]
