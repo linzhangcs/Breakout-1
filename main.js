@@ -16,6 +16,8 @@ STATES:
 var serial;
 var portName = '/dev/cu.wchusbserial1430'; // fill in your serial port name here
 var angle = 0;
+var brickWidth = 150;
+var brickHeight = 30;
 
 function Menu(components) {
 
@@ -97,12 +99,12 @@ Tooltip.prototype = Object.create(Sprite.prototype);
 
 
 function Level(rows, cols, b_margin, offX, offY, filter, numcolors, background) {
-
 	this.createLayout = function(rows, cols, b_margin, offX, offY, filter, colors) {
 		for(var i = 0; i < rows; i++) {
 			for(var j = 0; j < cols; j++) {
 				if(filter(i, j)) {
-					this.level_items.add(new Brick( offX + j * (40 + b_margin), offY + i * (20 + b_margin), 40, 20, this.chooseColor()));
+					// this.level_items.add(new Brick( offX + j * (40 + b_margin), offY + i * (20 + b_margin), 40, 20, this.chooseColor()));
+					this.level_items.add(new Brick( offX + j * (brickWidth + b_margin), offY + i * (brickHeight + b_margin), brickWidth, brickHeight, this.chooseColor()));
 				}
 			}
 		}
@@ -216,11 +218,15 @@ function Level(rows, cols, b_margin, offX, offY, filter, numcolors, background) 
 
 function GameControl() {
 
+	// Pass game level info
 	this.createLevelList = function() {
 		return [
 		  // [rows, cols, brick margin, x-Offset, y-Offset, level filter function, number of colors, background]
-		[9, 16, 4, (width / 2) - 15 * (40 + 4) / 2, 80, function(i, j) { return i === 0; }, 8, 'forest'],
-		[9, 16, 4, (width / 2) - 15 * (40 + 4) / 2, 80, function(i, j) { return j === 0; }, 8, 'talltrees'],
+		// [9, 16, 4, (width / 2) - 15 * (40 + 4) / 2, 80, function(i, j) { return i === 0; }, 8, 'forest'],
+		// [9, 16, 4, (width / 2) - 15 * (40 + 4) / 2, 80, function(i, j) { return j === 0; }, 8, 'talltrees'],
+
+		[9, 10, 0, (width / 2) - 15 * (85 + 4) / 2, 100, function(i, j) { return i === 0; }, 8, 'forest'],
+		[9, 16, 4, (width / 2) - 15 * (brickWidth + 4) / 2, 80, function(i, j) { return j === 0; }, 8, 'talltrees'],
 		];
 	}
 
@@ -405,11 +411,12 @@ function GameControl() {
 		this.state = s
 	}
 
+	// Drawing game info
 	this.drawText = function() {
 		this.formatText(32, 'krungthep', [255, 255, 255]);
-		text('SCORE: '.concat(this.score), (width / 2) - (32 * 2), 32 * 1.5);
-		text('LEVEL: '.concat(this.level), 0 + (32 / 2), 32 * 1.5);
-		text('LIVES: '.concat(this.player.lives), width - (32 * 6), 32 * 1.5);
+		text('SCORE: '.concat(this.score), (width / 2) - 15 * (85 + 4), 32 * 1.5);
+		text('LEVEL: '.concat(this.level), (width / 2) - 15 * (85 + 4) / 2, 32 * 1.5);
+		text('LIVES: '.concat(this.player.lives), width - 15 * (85 + 4), 32 * 1.5);
 	}
 
 	this.formatText = function(size, font, nfill) {
