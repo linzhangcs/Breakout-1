@@ -212,7 +212,7 @@ function Level(rows, cols, b_margin, offX, offY, filter, numcolors, background) 
 
 	this.createLayout(rows, cols, b_margin, offX, offY, this.filter, this.colors);
 
-	this.ball_list.add(new Ball(width/2, height-100, 15, 15, 5, 5, this.chooseColor()));
+	this.ball_list.add(new Ball(width/2, height-100, 30, 30, 5, 5, this.chooseColor()));
 
 }
 
@@ -224,16 +224,16 @@ function GameControl() {
 		  // [rows, cols, brick margin, x-Offset, y-Offset, level filter function, number of colors, background]
 		// [9, 16, 4, (width / 2) - 15 * (40 + 4) / 2, 80, function(i, j) { return i === 0; }, 8, 'forest'],
 		// [9, 16, 4, (width / 2) - 15 * (40 + 4) / 2, 80, function(i, j) { return j === 0; }, 8, 'talltrees'],
-
-		[9, 10, 0, (width / 2) - 15 * (85 + 4) / 2, 120, function(i, j) { return i === 0; }, 8, 'forest'],
-		[6, 20, 0, (width / 2) - 15 * (85 + 4) / 2, 120, function(i, j) { return j === 0; }, 5, 'talltrees'],
-		[10, 10, 0, (width / 2) - 15 * (85 + 4) / 2, 120, function(i, j) { return i === 0; }, 6, 'forest'],
-		[2, 63, 0, (width / 2) - 15 * (85 + 4) / 2, 120, function(i, j) { return j === 0; }, 4, 'talltrees'],
+		[9, 10, 0, (width / 2) - 15 * (85 + 4) / 2, 150, function(i, j) { return i === 0; }, 8, 'forest'],
+		[6, 20, 0, (width / 2) - 15 * (85 + 4) / 2, 150, function(i, j) { return j === 0; }, 5, 'talltrees']
 		];
 	}
 
 	this.draw = function() {
 		this.formatText(32, 'krungthep', [255, 255, 255]);
+		if(this.state === 2){
+			this.player.position.x = constrain(mouseX, this.player.width/2, windowWidth - this.player.width/2);
+		}
 		if(this.state === 1) {
 			this.player.position.x = constrain(mouseX, this.player.width/2, windowWidth - this.player.width/2);
 			// this.player.position.x = map(angle, 1, 25, 0, windowWidth-0);
@@ -264,11 +264,11 @@ function GameControl() {
 		} else if(this.state === 2) {
 			// text('Click to Begin', (width / 2) - 32 * 4, (height / 2));
 			// this.formatText(32, 'krungthep', [100,143,243]);
-			this.formatText(62, 'krungthep', [255, 255, 255]);
-			text('BRICK BREAKER', (width / 2) - 32 * 7, (height / 3));
+			this.formatText(78, 'krungthep', [255, 255, 255]);
+			text('BRICK BREAKER', (width / 2) - 32 * 9, (height / 2));
 			if(!game_started) {
-				this.formatText(42, 'krungthep', [234, 183, 111]);
-				text('SIT TO START ', width / 2.3, height / 1.5);
+				this.formatText(32, 'krungthep', [234, 183, 111]);
+				text('SIT TO START ', width / 2.3, height / 1.7);
 			}
 		} else if(this.state === 3) {
 			text('Game Over! \nPress \'R\' to Restart!', (width / 2) - 32 * 4, (height / 2));
@@ -415,13 +415,13 @@ function GameControl() {
 
 	// Drawing game info
 	this.drawText = function() {
-		this.formatText(32, 'krungthep', [255, 255, 255]);
+		this.formatText(36, 'krungthep', [255, 255, 255]);
 		// text('SCORE: '.concat(this.score), (width / 2) - 15 * (85 + 4), 32 * 1.5);
 		// text('LEVEL: '.concat(this.level), (width / 2) - 15 * (85 + 4) / 2, 32 * 1.5);
 		// text('LIVES: '.concat(this.player.lives), width - 15 * (85 + 4), 32 * 1.5);
-		text('SCORE: '.concat(this.score), (width / 2) - 15 * (95 + 4) / 38, 32 * 2);
-		text('LEVEL: '.concat(this.level), (width / 2) - 15 * (95 + 4) / 2, 32 * 2);
-		text('LIVES: '.concat(this.player.lives), width - 15 * (95 + 4) / 7, 32 * 2);
+		text('SCORE: '.concat(this.score), (width / 2) - 15 * (95 + 4) / 38, 32 * 2.5);
+		text('LEVEL: '.concat(this.level), (width / 2) - 15 * (95 + 4) / 2, 32 * 2.5);
+		text('LIVES: '.concat(this.player.lives), width - 15 * (95 + 4) / 7, 32 * 2.5);
 	}
 
 	this.formatText = function(size, font, nfill) {
