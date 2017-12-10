@@ -1,6 +1,6 @@
 function Paddle(x, y, w, h, l) {
 	Sprite.apply(this, arguments);
-	this.immovable = false;
+	this.immovable = true;
 	this.lives = l || 3;
 
   // Put createTimers into a function for quicker resetting of timers.
