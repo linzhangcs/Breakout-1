@@ -17,7 +17,7 @@ var portName = '/dev/cu.wchusbserial1430'; // fill in your serial port name here
 var angle = 0;
 var brickWidth = 150;
 var brickHeight = 30;
-var timer = 3;
+var timer = 5;
 
 function Menu(components) {
 
@@ -263,20 +263,14 @@ function GameControl() {
 			this.formatText(62, 'krungthep', [255, 255, 255]);
 			text('PAUSED', (width / 2) - 32 * 2.6, (height / 1.8));
 		} else if(this.state === 2) {
-			if(!game_started) {
-				this.formatText(82, 'krungthep', [255, 255, 255]);
-				text('BRICK BREAKER', (width / 2) - 32 * 9, (height / 2.2));
-				this.formatText(32, 'krungthep', [234, 183, 111]);
-				text('SIT TO START ', width / 2.2, height / 1.7);
-			}
-			// this.countdownTimer();
-			// var count = 3;
-			// console.log(this.countdownTimer(count));
-
-			console.log(timer);
-			this.formatText(62, 'krungthep', [255, 255, 255]);
-			text(timer, (width / 2) - 32 * 2.6, (height / 1.8));
-			console.log(frameCount);
+			// if(!game_started) {
+			// 	this.formatText(82, 'krungthep', [255, 255, 255]);
+			// 	text('BRICK BREAKER', (width / 2) - 32 * 9, (height / 2.2));
+			// 	this.formatText(32, 'krungthep', [234, 183, 111]);
+			// 	text('SIT TO START ', width / 2.2, height / 1.7);
+			// }
+			this.formatText(110, 'krungthep', [234, 183, 111]);
+			text(timer, (width / 2) - 32, (height / 1.75));
 			if (frameCount % 60 == 0 && timer > 0) { // if the frameCount is divisible by 60, then a second has passed. it will stop at 0
 			    timer --;
 			  }
@@ -293,12 +287,15 @@ function GameControl() {
 					    }
 					  } else {
 					    this.changeState(1);
+							timer = 3;
 					  }
 			  }
 
 		} else if(this.state === 3) {
-			this.formatText(62, 'krungthep', [234, 183, 111]);
-			text('GAME OVER', (width / 2) - 32 * 4, (height / 2));
+			// 	this.formatText(82, 'krungthep', [255, 255, 255]);
+			// 	text('BRICK BREAKER', (width / 2) - 32 * 9, (height / 2.2));
+			this.formatText(82, 'krungthep', [255, 255, 255]);
+			text('GAME OVER', (width / 2) - 32 * 5.5, (height / 2));
 		}
 		this.currentLevel.drawLevel();
 
@@ -540,7 +537,7 @@ function GameControl() {
 
 	this.menu_list = [];
 
-	this.player = new Paddle(width/2, (windowHeight - 20), 250, 30);
+	this.player = new Paddle(width/2, (windowHeight - 20), 250, 30, 2);
 	this.player_list.add(this.player);
 
 	this.score = 0;
@@ -572,7 +569,7 @@ var sounds = {};
 var fonts = {};
 var images = {};
 // var max_ball_speed = 9;
-var max_ball_speed = 7;
+var max_ball_speed = 9;
 
 var start_playing = false;
 var game_started = false;
@@ -656,7 +653,7 @@ function serialEvent() {
 		stringFromSerial = trim(stringFromSerial)
     // convert it to a number:
     angle = Number(stringFromSerial);
-		console.log(angle);
+		console.log("angle: " + angle);
   }
 }
 
