@@ -8,9 +8,8 @@ STATES:
 	L = LOAD.
 */
 /**
-*TODO: the game doesn't stop at lives:0
+*TODO:
 * Powerup error
-* background images
 */
 
 var serial;
@@ -18,6 +17,7 @@ var portName = '/dev/cu.wchusbserial1430'; // fill in your serial port name here
 var angle = 0;
 var brickWidth = 150;
 var brickHeight = 30;
+var timer = 3;
 
 function Menu(components) {
 
@@ -136,7 +136,7 @@ function Level(rows, cols, b_margin, offX, offY, filter, numcolors, background) 
 
 	this.drawLevel = function() {
 		// Removed backgrounds because they mess with the general color scheme of the game.
-		if(this.background) { this.drawBackground(); };
+		// if(this.background) { this.drawBackground(); };
 		drawSprites(this.level_items);
 		drawSprites(this.enemy_list);
 		drawSprites(this.ball_list);
@@ -224,8 +224,8 @@ function GameControl() {
 		  // [rows, cols, brick margin, x-Offset, y-Offset, level filter function, number of colors, background]
 		// [9, 16, 4, (width / 2) - 15 * (40 + 4) / 2, 80, function(i, j) { return i === 0; }, 8, 'forest'],
 		// [9, 16, 4, (width / 2) - 15 * (40 + 4) / 2, 80, function(i, j) { return j === 0; }, 8, 'talltrees'],
-		[9, 10, 0, (width / 2) - 15 * (85 + 4) / 2, 150, function(i, j) { return i === 0; }, 8, 'forest'],
-		[6, 20, 0, (width / 2) - 15 * (85 + 4) / 2, 150, function(i, j) { return j === 0; }, 5, 'talltrees']
+		[9, 10, 0, (width / 2) - 15 * (85 + 4) / 2, 180, function(i, j) { return i === 0; }, 8],
+		[6, 20, 0, (width / 2) - 15 * (85 + 4) / 2, 180, function(i, j) { return j === 0; }, 5]
 		];
 	}
 
@@ -239,7 +239,7 @@ function GameControl() {
 			// this.player.position.x = map(angle, 1, 25, 0, windowWidth-0);
 			console.log(map(angle, 1, 26, 0, windowWidth));
 
-			this.player.handlePowerupTimers();
+			// this.player.handlePowerupTimers();
 
 			this.checkBallHits();
 			this.garbageCollection();
@@ -259,19 +259,46 @@ function GameControl() {
 			//   t.velocity.x *= -1;
 			// });
 
-		} else if(this.state === 0) {
-			text('PAUSED', (width / 2) - 32 * 2, (height / 2));
+		} else if(this.state === 0){
+			this.formatText(62, 'krungthep', [255, 255, 255]);
+			text('PAUSED', (width / 2) - 32 * 2.6, (height / 1.8));
 		} else if(this.state === 2) {
-			// text('Click to Begin', (width / 2) - 32 * 4, (height / 2));
-			// this.formatText(32, 'krungthep', [100,143,243]);
-			this.formatText(78, 'krungthep', [255, 255, 255]);
-			text('BRICK BREAKER', (width / 2) - 32 * 9, (height / 2));
 			if(!game_started) {
+				this.formatText(82, 'krungthep', [255, 255, 255]);
+				text('BRICK BREAKER', (width / 2) - 32 * 9, (height / 2.2));
 				this.formatText(32, 'krungthep', [234, 183, 111]);
-				text('SIT TO START ', width / 2.3, height / 1.7);
+				text('SIT TO START ', width / 2.2, height / 1.7);
 			}
+			// this.countdownTimer();
+			// var count = 3;
+			// console.log(this.countdownTimer(count));
+
+			console.log(timer);
+			this.formatText(62, 'krungthep', [255, 255, 255]);
+			text(timer, (width / 2) - 32 * 2.6, (height / 1.8));
+			console.log(frameCount);
+			if (frameCount % 60 == 0 && timer > 0) { // if the frameCount is divisible by 60, then a second has passed. it will stop at 0
+			    timer --;
+			  }
+			  if (timer == 0) {
+						if(game_started === false) { game_started = true; };
+					  if(this.fun_mode) {
+					    if(!start_playing) {
+					      sounds['ready'].play();
+					      start_playing = true;
+					      setTimeout(function() {sounds['set'].play() }, 500);
+					      setTimeout(function() {sounds['go'].play() }, 1100);
+				  		  setTimeout(function() { this.changeState(1); }, 1500);
+				  		  setTimeout(function() {start_playing = false }, 1501);
+					    }
+					  } else {
+					    this.changeState(1);
+					  }
+			  }
+
 		} else if(this.state === 3) {
-			text('Game Over! \nPress \'R\' to Restart!', (width / 2) - 32 * 4, (height / 2));
+			this.formatText(62, 'krungthep', [234, 183, 111]);
+			text('GAME OVER', (width / 2) - 32 * 4, (height / 2));
 		}
 		this.currentLevel.drawLevel();
 
@@ -304,7 +331,7 @@ function GameControl() {
 
 	this.generateEnemy = function() {
 		var lowestRow = this.currentLevel.rows * (20 + this.currentLevel.b_margin);
-		this.currentLevel.enemy_list.add(new Enemy(40, lowestRow + random(20, 60), this.enemy_color_list[this.enemy_generator.next()]));
+		this.currentLevel.enemy_list.add(new Enemy(40, lowestRow + random(40, 60), this.enemy_color_list[this.enemy_generator.next()]));
 	}
 
 	this.generateTip = function() {
@@ -323,6 +350,34 @@ function GameControl() {
 	// 	// [ [0, 128, 255], function(level) { gameControl.player.timers['slow'][0] += 500; gameControl.currentLevel.ball_list.forEach(function(b) { b.setSpeed(max_ball_speed / 2, b.getDirection()); }); }]
 	// 	];
 	// }
+	this.countdownTimer = function(count) {
+		var count = 3
+		gameControl.formatText(32, 'krungthep', [255, 255, 255]);
+		text(count, (width / 2) - 32 * 2.6, (height / 1.8));
+		var counter = setInterval(this.countdownTimer, 1000);
+		count = count -1;
+
+		if(count <= 0){
+			clearInterval(counter);
+
+			if(gameControl.state === 2) {
+				if(game_started === false) { game_started = true; };
+				if(gameControl.fun_mode) {
+					if(!start_playing) {
+						sounds['ready'].play();
+						start_playing = true;
+						setTimeout(function() {sounds['set'].play() }, 500);
+						setTimeout(function() {sounds['go'].play() }, 1100);
+						setTimeout(function() { gameControl.changeState(1); }, 1500);
+						setTimeout(function() {start_playing = false }, 1501);
+					}
+				} else {
+					gameControl.changeState(1);
+				}
+			}
+		}
+
+	}
 
 	this.garbageCollection = function() {
 		this.currentLevel.powerups.forEach(function(s) {
@@ -381,11 +436,12 @@ function GameControl() {
 	}
 
 	this.loseBall = function(b) {
+		var lowestRow = this.currentLevel.rows * (30 + this.currentLevel.b_margin);
 		if(this.currentLevel.ball_list.length === 1){
 			if(this.player.lives > 0) {
 				this.currentLevel.clearPowerups();
 				// Reset postion
-				b.reset(500, 400);
+				b.reset(width/2, lowestRow);
 				this.player.position.x = 500;
 				this.changeState(2);
 			} else {
@@ -419,9 +475,9 @@ function GameControl() {
 		// text('SCORE: '.concat(this.score), (width / 2) - 15 * (85 + 4), 32 * 1.5);
 		// text('LEVEL: '.concat(this.level), (width / 2) - 15 * (85 + 4) / 2, 32 * 1.5);
 		// text('LIVES: '.concat(this.player.lives), width - 15 * (85 + 4), 32 * 1.5);
-		text('SCORE: '.concat(this.score), (width / 2) - 15 * (95 + 4) / 38, 32 * 2.5);
-		text('LEVEL: '.concat(this.level), (width / 2) - 15 * (95 + 4) / 2, 32 * 2.5);
-		text('LIVES: '.concat(this.player.lives), width - 15 * (95 + 4) / 7, 32 * 2.5);
+		text('SCORE: '.concat(this.score), (width / 2) - 15 * (95 + 4) / 38, 32 * 2.8);
+		text('LEVEL: '.concat(this.level), (width / 2) - 15 * (95 + 4) / 2, 32 * 2.8);
+		text('LIVES: '.concat(this.player.lives), width - 15 * (95 + 4) / 6.5, 32 * 2.8);
 	}
 
 	this.formatText = function(size, font, nfill) {
@@ -632,20 +688,20 @@ function keyPressed() {
 }
 
 function mousePressed() {
-	if(gameControl.state === 2) {
-		if(game_started === false) { game_started = true; };
-	  if(gameControl.fun_mode) {
-	    if(!start_playing) {
-	      sounds['ready'].play();
-	      start_playing = true;
-	      setTimeout(function() {sounds['set'].play() }, 500);
-	      setTimeout(function() {sounds['go'].play() }, 1100);
-  		  setTimeout(function() { gameControl.changeState(1); }, 1500);
-  		  setTimeout(function() {start_playing = false }, 1501);
-	    }
-	  } else {
-	    gameControl.changeState(1);
-	  }
-
-	}
+	// if(gameControl.state === 2) {
+	// 	// if(game_started === false) { game_started = true; };
+	//   if(gameControl.fun_mode) {
+	//     if(!start_playing) {
+	//       sounds['ready'].play();
+	//       start_playing = true;
+	//       setTimeout(function() {sounds['set'].play() }, 500);
+	//       setTimeout(function() {sounds['go'].play() }, 1100);
+  // 		  setTimeout(function() { gameControl.changeState(1); }, 1500);
+  // 		  setTimeout(function() {start_playing = false }, 1501);
+	//     }
+	//   } else {
+	//     gameControl.changeState(1);
+	//   }
+  //
+	// }
 }
