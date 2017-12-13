@@ -1,3 +1,12 @@
+/* DO NOT Remove
+STATES:
+	0 = PAUSED
+	1 = RUNNING
+	2 = WAITING (DEAD/NEXT LEVEL)
+	3 = OUT OF LIVES
+
+	L = LOAD.
+*/
 var serial;
 // var portName = '/dev/cu.usbmodem1411'; // fill in your serial port name here
 var angle = 0;
@@ -10,6 +19,7 @@ function Menu(components) {
  this.addComponent = function(component) {
 	 this.components.add(component);
  }
+
 
  this.handleComponentParam = function(components) {
 	 var newComp = new Group();
@@ -217,19 +227,21 @@ function GameControl() {
 
  this.draw = function() {
 	 this.formatText(32, 'krungthep', [255, 255, 255]);
-	 console.log(angle);
-	 // let p = map(angle, 0, 8, 0, windowWidth);
+	 // angle = map(angle, 0, 16, 0, windowWidth);
+	 console.log("draw function from GameControl: " + angle);
 	 if(this.state === 2){
-		 // this.player.position.x = constrain(p, this.player.width/2, windowWidth - this.player.width/2);
-		 // console.log(p);
-		 this.player.position.x = constrain(mouseX, this.player.width/2, windowWidth - this.player.width/2);
+		 // angle = map(angle, 0, 16, 0, windowWidth);
+		 // this.player.position.x = constrain(angle, this.player.width/2, windowWidth - this.player.width/2);
+		 // this.player.position.x = constrain(mouseX, this.player.width/2, windowWidth - this.player.width/2);
+		 this.player.position.x = map(angle, 0, 16, 0, windowWidth);
 
 	 }
 	 if(this.state === 1) {
+		 // angle = map(angle, 0, 16, 0, windowWidth);
+		 // this.player.position.x = constrain(angle, this.player.width/2, windowWidth - this.player.width/2);
 		 // this.player.position.x = constrain(mouseX, this.player.width/2, windowWidth - this.player.width/2);
-		 // this.player.position.x = constrain(p, this.player.width/2, windowWidth - this.player.width/2);
 		 this.player.position.x = map(angle, 0, 16, 0, windowWidth);
-		 // console.log(p);
+
 		 // this.player.handlePowerupTimers();
 
 		 this.checkBallHits();
@@ -428,9 +440,10 @@ function GameControl() {
 	 if(this.currentLevel.ball_list.length === 1){
 		 if(this.player.lives > 0) {
 			 this.currentLevel.clearPowerups();
-			 // Reset postion
+			 // Reset the ball postition
 			 b.reset(width/2, lowestRow);
-			 this.player.position.x = 500;
+				// Comment out of reset position to controlled by the seesaw angle
+			 // this.player.position.x = 500;
 			 this.changeState(2);
 		 } else {
 			 sounds['game_over'].play();
@@ -625,7 +638,7 @@ function setup() {
 function draw() {
  background(0);
  // console.log("max_speed: "+ max_ball_speed);
- console.log(" Angle: " + angle);
+ console.log(" Angle from p5 draw: " + angle);
  gameControl.draw();
 }
 // SerialPort functions starts here
