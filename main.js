@@ -221,7 +221,8 @@ function GameControl() {
 	 // [9, 16, 4, (width / 2) - 15 * (40 + 4) / 2, 80, function(i, j) { return i === 0; }, 8, 'forest'],
 	 // [9, 16, 4, (width / 2) - 15 * (40 + 4) / 2, 80, function(i, j) { return j === 0; }, 8, 'talltrees'],
 	 [9, 10, 0, (width / 2) - 15 * (85 + 4) / 2, 180, function(i, j) { return i === 0; }, 8],
-	 [6, 20, 0, (width / 2) - 15 * (85 + 4) / 2, 180, function(i, j) { return j === 0; }, 5]
+	 // [6, 15, 0, (width / 2) - 15 * (85 + 4) / 2, 120, function(i, j) { return j === 0; }, 5]
+	 [3, 8, 0, (width / 2) - 15 * (85 + 4) / 2, 180, function(i, j) { return i === 0; }, 8]
 	 ];
  }
 
@@ -232,15 +233,17 @@ function GameControl() {
 	 if(this.state === 2){
 		 // angle = map(angle, 0, 16, 0, windowWidth);
 		 // this.player.position.x = constrain(angle, this.player.width/2, windowWidth - this.player.width/2);
-		 // this.player.position.x = constrain(mouseX, this.player.width/2, windowWidth - this.player.width/2);
-		 this.player.position.x = map(angle, 0, 16, 0, windowWidth);
+
+		 this.player.position.x = constrain(mouseX, this.player.width/2, windowWidth - this.player.width/2);
+		 // this.player.position.x = map(angle, 3, 16, 0, windowWidth);
 
 	 }
 	 if(this.state === 1) {
 		 // angle = map(angle, 0, 16, 0, windowWidth);
 		 // this.player.position.x = constrain(angle, this.player.width/2, windowWidth - this.player.width/2);
-		 // this.player.position.x = constrain(mouseX, this.player.width/2, windowWidth - this.player.width/2);
-		 this.player.position.x = map(angle, 0, 16, 0, windowWidth);
+
+		 this.player.position.x = constrain(mouseX, this.player.width/2, windowWidth - this.player.width/2);
+		 // this.player.position.x = map(angle, 3, 16, 0, windowWidth);
 
 		 // this.player.handlePowerupTimers();
 
@@ -291,6 +294,8 @@ function GameControl() {
 					 } else {
 						 this.changeState(1);
 						 timer = 3;
+						 // this.formatText(32, 'krungthep', [255, 255, 255]);
+						 // text('LEVEL' + this.level, (width / 2) - 32 * 2.6, (height / 1.8));
 					 }
 			 }
 
@@ -425,9 +430,8 @@ function GameControl() {
 		 this.levelList.push(this.createLevel('random'));
 	 }
 	 this.currentLevel = this.createLevel(this.levelList[0]);
-	 // this.changeState(2);
+	 this.changeState(2);
 	 this.level++;
-
 	 this.saveGame();
  }
 
@@ -448,6 +452,8 @@ function GameControl() {
 		 } else {
 			 sounds['game_over'].play();
 			 this.changeState(3);
+			 setTimeout(function(){location.replace('index.html')}, 3000);
+			 // location.replace('index.html');
 		 }
 	 } else {
 		 b.remove();
@@ -490,7 +496,9 @@ function GameControl() {
  this.createLevel = function(args) {
 	 if(args === 'random') {
 		 // return [Math.floor(random(4, 15)), Math.floor(random(4, 15)), random(3, 10), random(100, ((width / 2) - 15 * (40) / 2) + 400), random(100, 150), function(i, j) { return i % Math.floor(Math.random() * 4) === 0 || j % Math.floor(Math.random() * 4) === 0}, Math.ceil(random(4, 16))];
-		 return [Math.floor(random(4, 15)), Math.floor(random(4, 15)), 0, random(100, ((width / 2) - 15 * (40) / 2) + 400), random(100, 150), function(i, j) { return i % Math.floor(Math.random() * 4) === 0 || j % Math.floor(Math.random() * 4) === 0}, Math.ceil(random(4, 16))];
+		 // return [Math.floor(random(4, 15)), Math.floor(random(4, 15)), 0, random(100, ((width / 2) - 15 * (40) / 2) + 400), random(100, 150), function(i, j) { return i % Math.floor(Math.random() * 4) === 0 || j % Math.floor(Math.random() * 4) === 0}, Math.ceil(random(4, 16))];
+		 return [Math.floor(random(4, 15)), Math.floor(random(4, 15)), 0, random(100, ((width / 2) - 15 * (40) / 2) + 400), 150, function(i, j) { return i % Math.floor(Math.random() * 4) === 0 || j % Math.floor(Math.random() * 4) === 0}, Math.ceil(random(4, 16))];
+
 	 } else {
 		 return new Level(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
 	 }
@@ -541,7 +549,7 @@ function GameControl() {
 
  this.menu_list = [];
 
- this.player = new Paddle(width/2, (windowHeight - 20), 250, 30, 2);
+ this.player = new Paddle(width/2, (windowHeight - 20), 420, 30, 2);
  this.player_list.add(this.player);
 
  this.score = 0;
@@ -573,7 +581,7 @@ var sounds = {};
 var fonts = {};
 var images = {};
 // var max_ball_speed = 9;
-var max_ball_speed = 9;
+var max_ball_speed = 10;
 
 var start_playing = false;
 var game_started = false;
